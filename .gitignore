@@ -2,3 +2,4 @@
 .idea
 *.tmp
 log/
+.coverage-reports

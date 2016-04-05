@@ -14,5 +14,6 @@ func CreateRouter() *mux.Router {
 	router.HandleFunc("/", controller.Index)
 	router.HandleFunc("/test", controller.TestEndpoint)
 	router.HandleFunc("/test/{id}", controller.TestXEndpoint)
+	router.HandleFunc("/spheres", controller.SphereEndpoint)
 	return router
 }
