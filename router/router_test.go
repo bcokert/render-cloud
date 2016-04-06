@@ -18,10 +18,7 @@ func MakeHandler(varsChannel chan<- map[string]string, responseBody string) http
 
 func TestCreateDefaultRouter(t *testing.T) {
 	expectedRoutes := []string{
-		"/",
-		"/test",
-		"/test/{id}",
-		"/spheres",
+		"/render",
 	}
 	expectedNumRoutes := len(expectedRoutes)
 

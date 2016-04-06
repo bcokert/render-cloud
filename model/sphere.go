@@ -6,10 +6,10 @@ import (
 )
 
 type Sphere struct {
-	Origin    vector.Vector3 `json:"origin"`
-	Radius    float64        `json:"radius"`
-	Color     colorful.Color `json:"color"`
-	Shininess float64        `json:"shininess"`
+	Origin    *vector.Vector3 `json:"origin,omitempty"`
+	Radius    *float64        `json:"radius,omitempty"`
+	Color     *colorful.Color `json:"color,omitempty"`
+	Shininess *float64        `json:"shininess,omitempty"`
 }
 
 type Spheres []Sphere

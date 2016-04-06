@@ -3,6 +3,7 @@ package model_test
 import (
 	"github.com/bcokert/render-cloud/model"
 	"github.com/bcokert/render-cloud/testutils"
+	"github.com/bcokert/render-cloud/utils"
 	"github.com/bcokert/render-cloud/vector"
 	"github.com/lucasb-eyer/go-colorful"
 	"testing"
@@ -10,16 +11,16 @@ import (
 
 func TestSceneJsonEncodes(t *testing.T) {
 	scene := model.Scene{
-		Id: 8752,
-		World: model.World{
-			Ambient:    colorful.Color{1, 0, 0},
-			Background: colorful.Color{1, 1, 1},
-			Camera:     model.Camera{Origin: vector.Vector3{10, 10, -50}, Direction: vector.Vector3{0, 0, 1}, Up: vector.Vector3{0, 1, 0}},
+		Id: utils.UintPointer(8752),
+		World: &model.World{
+			Ambient:    &colorful.Color{1, 0, 0},
+			Background: &colorful.Color{1, 1, 1},
+			Camera:     &model.Camera{Origin: &vector.Vector3{10, 10, -50}, Direction: &vector.Vector3{0, 0, 1}, Up: &vector.Vector3{0, 1, 0}},
 		},
-		Spheres: model.Spheres{
-			model.Sphere{Origin: vector.Vector3{0, 0, 0}, Radius: 5.0, Color: colorful.Color{R: 1, G: 0, B: 0}, Shininess: 2},
-			model.Sphere{Origin: vector.Vector3{600, 100, 0}, Radius: 7.0, Color: colorful.Color{R: 0, G: 1, B: 0}, Shininess: 1},
-			model.Sphere{Origin: vector.Vector3{300, 400, 0}, Radius: 1.5, Color: colorful.Color{R: 0, G: 0, B: 1}, Shininess: 6},
+		Spheres: &model.Spheres{
+			model.Sphere{Origin: &vector.Vector3{0, 0, 0}, Radius: utils.FloatPointer(5.0), Color: &colorful.Color{R: 1, G: 0, B: 0}, Shininess: utils.FloatPointer(2)},
+			model.Sphere{Origin: &vector.Vector3{600, 100, 0}, Radius: utils.FloatPointer(7.0), Color: &colorful.Color{R: 0, G: 1, B: 0}, Shininess: utils.FloatPointer(1)},
+			model.Sphere{Origin: &vector.Vector3{300, 400, 0}, Radius: utils.FloatPointer(1.5), Color: &colorful.Color{R: 0, G: 0, B: 1}, Shininess: utils.FloatPointer(6)},
 		},
 	}
 
