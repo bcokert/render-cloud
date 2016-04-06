@@ -10,6 +10,6 @@ import (
 func main() {
 	log.Println("Starting Server")
 
-	router := router.CreateRouter()
-	log.Fatal(http.ListenAndServe("localhost:8080/", router))
+	r := router.CreateDefaultRouter()
+	log.Fatal(http.ListenAndServe("localhost:8080/", r))
 }

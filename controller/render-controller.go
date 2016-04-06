@@ -13,6 +13,11 @@ import (
 	"strconv"
 )
 
+//func PostRender(response http.ResponseWriter, request *http.Request) {
+//	vars := mux.Vars(request)
+//	log.Printf("Request: %q", request.URL)
+//}
+
 func Index(response http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(response, "Hello, %q", html.EscapeString(request.URL.Path))
 }

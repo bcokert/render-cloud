@@ -15,7 +15,7 @@ func ExpectControllerRequestString(t *testing.T, method, url string, expectedSta
 
 	response := httptest.NewRecorder()
 
-	router.CreateRouter().ServeHTTP(response, request)
+	router.CreateDefaultRouter().ServeHTTP(response, request)
 
 	if response.Code != expectedStatusCode {
 		t.Errorf("%s %s had status %d, expected %d", method, url, response.Code, expectedStatusCode)

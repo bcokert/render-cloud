@@ -1,10 +1,9 @@
 package testutils
 
 import (
-	"testing"
 	"image"
+	"testing"
 )
-
 
 func ExpectImageBoundsMatches(t *testing.T, image image.Image, minx, miny, maxx, maxy int) {
 	rect := image.Bounds()

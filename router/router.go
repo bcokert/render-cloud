@@ -1,19 +1,28 @@
 package router
 
 import (
-	"github.com/bcokert/render-cloud/controller"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
-type Router interface {
-	CreateRouter() *mux.Router
+type RouteConfig struct {
+	Method           string
+	Path             string
+	ControllerAction http.HandlerFunc
 }
 
-func CreateRouter() *mux.Router {
+func CreateDefaultRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", controller.Index)
-	router.HandleFunc("/test", controller.TestEndpoint)
-	router.HandleFunc("/test/{id}", controller.TestXEndpoint)
-	router.HandleFunc("/spheres", controller.SphereEndpoint)
+	AddRoutesToRouter(router, RenderControllerRoutes)
 	return router
+}
+
+func AddRoutesToRouter(router *mux.Router, routeConfigs []RouteConfig) {
+	for _, routeConfig := range routeConfigs {
+		router.
+			Methods(routeConfig.Method).
+			Path(routeConfig.Path).
+			Name(routeConfig.Path).
+			Handler(routeConfig.ControllerAction)
+	}
 }

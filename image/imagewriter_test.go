@@ -1,14 +1,14 @@
 package image_test
 
 import (
+	"errors"
 	"github.com/bcokert/render-cloud/image"
 	"github.com/bcokert/render-cloud/testutils"
 	"github.com/lucasb-eyer/go-colorful"
 	stdImage "image"
 	"io"
-	"testing"
-	"errors"
 	"os"
+	"testing"
 )
 
 func TestColorsToNRGBAImageEmpty(t *testing.T) {
@@ -127,7 +127,7 @@ func TestPNGImageWriterWriteEncodingFails(t *testing.T) {
 	pngWriter := image.PNGImageWriter{}
 
 	err := pngWriter.WriteImage(mockPNGEncoderFails, colors, 1, 1, "./testfile.png")
-	defer func () {
+	defer func() {
 		err := os.Remove("./testfile.png")
 		if err != nil {
 			t.Errorf("Failed to remove temporary file 'testfile.png' created during test")
@@ -157,7 +157,7 @@ func TestPNGImageWriterWriteImage(t *testing.T) {
 	pngWriter := image.PNGImageWriter{}
 
 	err := pngWriter.WriteImage(image.DefaultPNGEncoder, colors, 4, 2, "./testfile2.png")
-	defer func () {
+	defer func() {
 		err := os.Remove("./testfile2.png")
 		if err != nil {
 			t.Errorf("Failed to remove temporary file 'testfile2.png' created during test")
