@@ -4,14 +4,12 @@ import (
 	"github.com/bcokert/render-cloud/testutils"
 	"net/http"
 	"testing"
-	"github.com/gorilla/mux"
 	"github.com/bcokert/render-cloud/router"
+	"github.com/bcokert/render-cloud/model"
+	"github.com/bcokert/render-cloud/utils"
 )
 
-func createRouterForTest() *mux.Router {
-	return router.CreateDefaultRouter()
-}
-
 func TestPostRenderSucceed(t *testing.T) {
-	testutils.ExpectRouterRoutes(t, createRouterForTest(), http.MethodPost, "/render", http.StatusOK, "", nil, nil)
+	r := router.CreateDefaultRouter()
+	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", model.Scene{utils.UintPointer(2345), nil, nil}, http.StatusOK, "", nil, nil)
 }

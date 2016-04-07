@@ -8,6 +8,11 @@ import (
 )
 
 func PostRender(response http.ResponseWriter, request *http.Request) {
+	if request.Body == nil {
+		fmt.Fprintf(response, "Failed to render: No post data was provided.")
+		return
+	}
+
 	decoder := json.NewDecoder(request.Body)
 	var scene model.Scene
 	err := decoder.Decode(&scene)

@@ -6,10 +6,24 @@ import (
 	"net/http/httptest"
 	"testing"
 	"bytes"
+	"github.com/bcokert/render-cloud/model"
 )
 
-func ExpectRouterRoutes(t *testing.T, router *mux.Router, method, url string, expectedStatusCode int, expectedBody string, varsChannel <-chan map[string]string, expectedVars map[string]string) {
-	request, err := http.NewRequest(method, url, bytes.NewReader([]byte("{\"test\": 123}")))
+func ExpectRouterRoutes(t *testing.T, router *mux.Router, method, url string, body interface{}, expectedStatusCode int, expectedBody string, varsChannel <-chan map[string]string, expectedVars map[string]string) {
+	var request *http.Request
+	var err error
+
+	if body != nil {
+		jsonString, err := model.ToJson(model.DefaultMarshaler, body)
+		if err != nil {
+			t.Errorf("Failed to encode provided body into json string")
+		}
+
+		request, err = http.NewRequest(method, url, bytes.NewReader([]byte(jsonString)))
+	} else {
+		request, err = http.NewRequest(method, url, nil)
+	}
+
 	if err != nil {
 		t.Errorf("Failed to create Mock Request for %s %s test", method, url)
 	}

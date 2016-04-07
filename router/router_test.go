@@ -81,6 +81,6 @@ func TestAddRoutesToRouterAddsRouteToRouterCorrectly(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		testutils.ExpectRouterRoutes(t, muxRouter, testCase.RouteConfig.Method, testCase.Url, 200, testCase.Body, varsChannel, testCase.Vars)
+		testutils.ExpectRouterRoutes(t, muxRouter, testCase.RouteConfig.Method, testCase.Url, nil, 200, testCase.Body, varsChannel, testCase.Vars)
 	}
 }
