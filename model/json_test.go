@@ -1,12 +1,12 @@
 package model_test
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"github.com/bcokert/render-cloud/model"
 	"github.com/bcokert/render-cloud/testutils"
 	"testing"
-	"bytes"
-	"fmt"
 )
 
 type TestModel struct {

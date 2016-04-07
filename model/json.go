@@ -19,7 +19,7 @@ func ToJson(marshal func(interface{}) ([]byte, error), object interface{}) (stri
 	return string(result), nil
 }
 
-func FromJson (content io.Reader, model interface{}) error {
+func FromJson(content io.Reader, model interface{}) error {
 	decoder := json.NewDecoder(content)
 	err := decoder.Decode(model)
 	if err != nil {

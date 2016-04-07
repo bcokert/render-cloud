@@ -1,12 +1,12 @@
 package testutils
 
 import (
+	"bytes"
+	"github.com/bcokert/render-cloud/model"
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"bytes"
-	"github.com/bcokert/render-cloud/model"
 )
 
 func ExpectRouterRoutes(t *testing.T, router *mux.Router, method, url string, body interface{}, expectedStatusCode int, expectedBody string, varsChannel <-chan map[string]string, expectedVars map[string]string) {

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/bcokert/render-cloud/model"
-	"net/http"
 	"fmt"
 	"github.com/bcokert/render-cloud/dto/response"
+	"github.com/bcokert/render-cloud/model"
 	"github.com/bcokert/render-cloud/utils"
+	"net/http"
 )
 
 func badRequest(responseWriter http.ResponseWriter, output response.ErrorResponse) {

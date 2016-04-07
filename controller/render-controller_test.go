@@ -1,12 +1,12 @@
 package controller_test
 
 import (
+	"github.com/bcokert/render-cloud/model"
+	"github.com/bcokert/render-cloud/router"
 	"github.com/bcokert/render-cloud/testutils"
+	"github.com/bcokert/render-cloud/utils"
 	"net/http"
 	"testing"
-	"github.com/bcokert/render-cloud/router"
-	"github.com/bcokert/render-cloud/model"
-	"github.com/bcokert/render-cloud/utils"
 )
 
 func TestPostRenderSucceed(t *testing.T) {
@@ -16,5 +16,5 @@ func TestPostRenderSucceed(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to convert scene to json, to verify response from server: %s", err.Error())
 	}
-	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", scene, http.StatusOK, sceneJson + "\n", nil, nil)
+	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", scene, http.StatusOK, sceneJson+"\n", nil, nil)
 }

@@ -1,12 +1,9 @@
 package response
 
-import (
-
-)
+import ()
 
 type ErrorResponse struct {
 	Message *string `json:"message,omitempty"`
-	Code *int `json:"code,omitempty"`
-	Reason *string `json:"reason,omitempty"`
+	Code    *int    `json:"code,omitempty"`
+	Reason  *string `json:"reason,omitempty"`
 }
-
