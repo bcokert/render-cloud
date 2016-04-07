@@ -5,27 +5,38 @@ import (
 	"github.com/bcokert/render-cloud/model"
 	"net/http"
 	"fmt"
+	"github.com/bcokert/render-cloud/dto/response"
+	"github.com/bcokert/render-cloud/utils"
 )
 
-func PostRender(response http.ResponseWriter, request *http.Request) {
+func badRequest(responseWriter http.ResponseWriter, output response.ErrorResponse) {
+	responseWriter.WriteHeader(http.StatusBadRequest)
+	if err := json.NewEncoder(responseWriter).Encode(output); err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(responseWriter, "{\"message\": \"Failed to encode error response: %q %d\"}", *output.Message, *output.Code)
+	}
+}
+
+func okRequest(responseWriter http.ResponseWriter, output interface{}) {
+	responseWriter.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(responseWriter).Encode(output); err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(responseWriter, "\"message\": \"Failed to encode response %q\"}", output)
+	}
+}
+
+func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 	if request.Body == nil {
-		fmt.Fprintf(response, "Failed to render: No post data was provided.")
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("POST /render requires a json body containing a scene, but nothing was sent.")})
 		return
 	}
 
-	decoder := json.NewDecoder(request.Body)
 	var scene model.Scene
-	err := decoder.Decode(&scene)
+	err := model.FromJson(request.Body, &scene)
 	if err != nil {
-		response.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(response, "Failed to parse post data: %s", err.Error())
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode post data. Expected a Scene object: " + err.Error())})
+		return
 	}
 
-	fmt.Fprint(response, "You sent in: ")
-	if err := json.NewEncoder(response).Encode(scene); err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(response, "Failed to encode response")
-	} else {
-		response.WriteHeader(http.StatusOK)
-	}
+	okRequest(responseWriter, scene)
 }
