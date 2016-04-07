@@ -11,5 +11,10 @@ import (
 
 func TestPostRenderSucceed(t *testing.T) {
 	r := router.CreateDefaultRouter()
-	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", model.Scene{utils.UintPointer(2345), nil, nil}, http.StatusOK, "", nil, nil)
+	scene := model.Scene{utils.UintPointer(2345), nil, nil}
+	sceneJson, err := model.ToJson(model.DefaultMarshaler, scene)
+	if err != nil {
+		t.Errorf("Failed to convert scene to json, to verify response from server: %s", err.Error())
+	}
+	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", scene, http.StatusOK, sceneJson + "\n", nil, nil)
 }
