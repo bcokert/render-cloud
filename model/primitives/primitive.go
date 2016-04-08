@@ -1,12 +1,12 @@
 package primitives
 
 import (
-	"github.com/bcokert/render-cloud/vector"
 	"github.com/bcokert/render-cloud/model/materials"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 type Primitive interface {
-	FindClosestRayCollision(vector.Vector3, vector.Vector3) vector.Vector3
+	FindClosestRayCollision(mgl64.Vec3, mgl64.Vec3) mgl64.Vec3
 	GetMaterial() materials.Material
-	GetOrigin() vector.Vector3
+	GetOrigin() mgl64.Vec3
 }

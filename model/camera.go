@@ -1,11 +1,11 @@
 package model
 
 import (
-	"github.com/bcokert/render-cloud/vector"
+	"github.com/go-gl/mathgl/mgl64"
 )
 
 type Camera struct {
-	Origin    *vector.Vector3 `json:"origin,omitempty"`
-	Direction *vector.Vector3 `json:"direction,omitempty"`
-	Up        *vector.Vector3 `json:"up,omitempty"`
+	Origin    *mgl64.Vec3 `json:"origin,omitempty"`
+	Direction *mgl64.Vec3 `json:"direction,omitempty"`
+	Up        *mgl64.Vec3 `json:"up,omitempty"`
 }
