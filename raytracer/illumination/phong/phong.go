@@ -46,7 +46,7 @@ func IlluminateLocal(ambientColor, specularColor, diffuseColor colorful.Color, l
 	}
 
 	if errDiff != nil {
-		return colorful.Color{}, errors.New("phong.Diffuse Failed: " + errSpec.Error())
+		return colorful.Color{}, errors.New("phong.Diffuse Failed: " + errDiff.Error())
 	}
 
 	ambientContributionColor := utils.ScaleColor(ambientColor, ambientComponent)

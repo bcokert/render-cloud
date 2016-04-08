@@ -5,6 +5,7 @@ import (
 	"testing"
 	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
 	"github.com/lucasb-eyer/go-colorful"
+	"strings"
 )
 
 func TestCombineColors(t *testing.T) {
@@ -167,16 +168,70 @@ func TestIlluminateLocal(t *testing.T) {
 		Shininess float64
 		Expected colorful.Color
 	}{
-	    {},
+		// zero colors
+	    {colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, colorful.Color{0,0,0}},
+	    {colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, colorful.Color{0,0,0}},
+	    {colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 5, colorful.Color{0,0,0}},
+
+		// ambient only
+		{colorful.Color{0,1,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, colorful.Color{0,1,0}},
+		{colorful.Color{1,0,1}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, colorful.Color{1,0,1}},
+		{colorful.Color{0.4,0.2,0.1}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 5, colorful.Color{0.4,0.2,0.1}},
+
+		// diffuse only
+		{colorful.Color{0,0,0}, colorful.Color{0,1,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, colorful.Color{0,0.10270683526598072,0}},
+		{colorful.Color{0,0,0}, colorful.Color{1,1,1}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, colorful.Color{0.27370026112427137,0.27370026112427137,0.27370026112427137}},
+		{colorful.Color{0,0,0}, colorful.Color{0,0.5,0.2}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 5, colorful.Color{0,0.2036299955257114,0.08145199821028456}},
+
+		// specular only
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,1}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, colorful.Color{0,0,0.8837879163470618}},
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{1,1,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, colorful.Color{0.6903100211467591,0.6903100211467591,0}},
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0.2,0.3,0.5}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 5, colorful.Color{0.10783761951968292, 0.16175642927952438, 0.2695940487992073}},
+
+		//multi
+		{colorful.Color{0.1,0.1,0.1}, colorful.Color{1,0.2,0}, colorful.Color{0,0.1,0.4}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, colorful.Color{0.2027068352659807, 0.20892015868790234, 0.45351516653882473}},
+		{colorful.Color{0.1,0.1,0.1}, colorful.Color{1,0.2,0}, colorful.Color{0,0.1,0.4}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, colorful.Color{0.37370026112427135, 0.2237710543395302, 0.37612400845870364}},
+		{colorful.Color{0.1,0.1,0.1}, colorful.Color{1,0.2,0}, colorful.Color{0,0.1,0.4}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 5, colorful.Color{0.5072599910514228, 0.23537080797012602, 0.31567523903936584}},
 	}
 
 	for i, testCase := range testCases {
 		result, err := phong.IlluminateLocal(testCase.AmbientColor, testCase.SpecularColor, testCase.DiffuseColor, testCase.Light, testCase.Normal, testCase.Viewer, testCase.Reflected, testCase.Shininess)
 		if err != nil {
 			t.Errorf("TestIlluminateLocal failed for test case %d. Returned error: %s", i, err.Error())
+		} else {
+			if !mgl64.FloatEqual(result.R, testCase.Expected.R) || !mgl64.FloatEqual(result.G, testCase.Expected.G) || !mgl64.FloatEqual(result.B, testCase.Expected.B) {
+				t.Errorf("TestIlluminateLocal failed for test case %d. Expected %s, received %s", i, testCase.Expected, result)
+			}
 		}
-		if result.R != testCase.Expected.R || result.G != testCase.Expected.G || result.B != testCase.Expected.B {
-			t.Errorf("TestIlluminateLocal failed for test case %d. Expected %s, received %s", i, testCase.Expected, result)
+	}
+}
+
+func TestIlluminateLocalError(t *testing.T) {
+	testCases := []struct{
+		AmbientColor colorful.Color
+		DiffuseColor colorful.Color
+		SpecularColor colorful.Color
+		Reflected mgl64.Vec3
+		Viewer mgl64.Vec3
+		Light mgl64.Vec3
+		Normal mgl64.Vec3
+		Shininess float64
+		Expected string
+	}{
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{0,0,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 1, "phong.Specular Failed: "},
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, 3, "phong.Specular Failed: "},
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{0,0,0}, mgl64.Vec3{-1,3,0}, 5, "phong.Diffuse Failed: "},
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{-1,3,0}, mgl64.Vec3{1,6,0}, mgl64.Vec3{0,0,0}, 7, "phong.Diffuse Failed: "},
+	}
+
+	for i, testCase := range testCases {
+		_, err := phong.IlluminateLocal(testCase.AmbientColor, testCase.SpecularColor, testCase.DiffuseColor, testCase.Light, testCase.Normal, testCase.Viewer, testCase.Reflected, testCase.Shininess)
+		if err == nil {
+			t.Errorf("TestIlluminateLocalError failed for test case %d. An error was not thrown when illegal input was given", i)
+		} else {
+			if !strings.HasPrefix(err.Error(), testCase.Expected) {
+				t.Errorf("TestIlluminateLocalError failed for test case %d. Expected error %s, received error %s", i, testCase.Expected, err.Error())
+			}
 		}
 	}
 }
