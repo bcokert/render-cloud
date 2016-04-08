@@ -58,8 +58,31 @@ func TestSpecular(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-		if specular := phong.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess); !mgl64.FloatEqual(specular, testCase.Expected) {
+		specular, err := phong.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
+		if err != nil {
+			t.Errorf("TestSpecular for case %d failed. Returned error: %s", i, err.Error())
+		}
+		if !mgl64.FloatEqual(specular, testCase.Expected) {
 			t.Errorf("TestSpecular for case %d failed. Expected %s, received %s", i, testCase.Expected, specular)
+		}
+	}
+}
+
+func TestSpecularError(t *testing.T) {
+	testCases := []struct{
+		Reflected mgl64.Vec3
+		Viewer mgl64.Vec3
+		Shininess float64
+		Expected string
+	}{
+		{mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, 0, "phong.Specular requires reflectedVector to be a direction vector, received the vector [0, 0, 0]"},
+		{mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, 0, "phong.Specular requires viewerVector to be a direction vector, received the vector [0, 0, 0]"},
+	}
+
+	for i, testCase := range testCases {
+		_, err := phong.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
+		if err == nil || err.Error() != testCase.Expected {
+			t.Errorf("TestSpecularError for case %d failed. Expected error %s, received %s", i, testCase.Expected, err)
 		}
 	}
 }
@@ -103,8 +126,57 @@ func TestDiffuse(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-		if diffuse := phong.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal); !mgl64.FloatEqual(diffuse, testCase.Expected) {
+		diffuse, err := phong.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
+		if err != nil {
+			t.Errorf("TestDiffuse for case %d failed. Returned error: %s", i, err.Error())
+		}
+		if !mgl64.FloatEqual(diffuse, testCase.Expected) {
 			t.Errorf("TestDiffuse for case %d failed. Expected %s, received %s", i, testCase.Expected, diffuse)
+		}
+	}
+}
+
+func TestDiffuseError(t *testing.T) {
+	testCases := []struct{
+		SpecularComponent float64
+		Light mgl64.Vec3
+		Normal mgl64.Vec3
+		Expected string
+	}{
+		{0, mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, "phong.Diffuse requires lightVector to be a direction vector, received the vector [0, 0, 0]"},
+		{0, mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, "phong.Diffuse requires normalVector to be a direction vector, received the vector [0, 0, 0]"},
+	}
+
+	for i, testCase := range testCases {
+		_, err := phong.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
+		if err == nil || err.Error() != testCase.Expected {
+			t.Errorf("TestDiffuseError for case %d failed. Expected error %s, received %s", i, testCase.Expected, err)
+		}
+	}
+}
+
+func TestIlluminateLocal(t *testing.T) {
+	testCases := []struct{
+		AmbientColor colorful.Color
+		DiffuseColor colorful.Color
+		SpecularColor colorful.Color
+		Reflected mgl64.Vec3
+		Viewer mgl64.Vec3
+		Light mgl64.Vec3
+		Normal mgl64.Vec3
+		Shininess float64
+		Expected colorful.Color
+	}{
+	    {},
+	}
+
+	for i, testCase := range testCases {
+		result, err := phong.IlluminateLocal(testCase.AmbientColor, testCase.SpecularColor, testCase.DiffuseColor, testCase.Light, testCase.Normal, testCase.Viewer, testCase.Reflected, testCase.Shininess)
+		if err != nil {
+			t.Errorf("TestIlluminateLocal failed for test case %d. Returned error: %s", i, err.Error())
+		}
+		if result.R != testCase.Expected.R || result.G != testCase.Expected.G || result.B != testCase.Expected.B {
+			t.Errorf("TestIlluminateLocal failed for test case %d. Expected %s, received %s", i, testCase.Expected, result)
 		}
 	}
 }
