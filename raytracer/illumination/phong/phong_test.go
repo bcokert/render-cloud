@@ -4,7 +4,28 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"testing"
 	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
+	"github.com/lucasb-eyer/go-colorful"
 )
+
+func TestCombineColors(t *testing.T) {
+	testCases := []struct{
+	    C1, C2, Expected colorful.Color
+	}{
+	    {colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}},
+	    {colorful.Color{0,1,0}, colorful.Color{0,0,0}, colorful.Color{0,1,0}},
+	    {colorful.Color{1,0,1}, colorful.Color{0,1,0}, colorful.Color{1,1,1}},
+	    {colorful.Color{0.5,0,1}, colorful.Color{0,0,0}, colorful.Color{0.5,0,1}},
+	    {colorful.Color{0.5,0,1}, colorful.Color{0.2,0.2,0}, colorful.Color{0.7,0.2,1}},
+	    {colorful.Color{1,1,1}, colorful.Color{1,1,1}, colorful.Color{1,1,1}},
+	}
+
+	for i, testCase := range testCases {
+	    combined := phong.CombineColors(testCase.C1, testCase.C2)
+		if combined.R != testCase.Expected.R || combined.G != testCase.Expected.G || combined.B != testCase.Expected.B {
+			t.Errorf("TestCombineColors failed for test case %d. Expected %s, received %s", i, testCase.Expected, combined)
+		}
+	}
+}
 
 func TestSpecular(t *testing.T) {
 	testCases := []struct{
