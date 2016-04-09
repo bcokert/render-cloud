@@ -8,11 +8,21 @@ import (
 	"errors"
 )
 
+// Use this to add together equally contributing colors
 func CombineColors(c1, c2 colorful.Color) colorful.Color {
 	return colorful.Color{
 		c1.R + c2.R,
 		c1.G + c2.G,
 		c1.B + c2.B,
+	}.Clamped()
+}
+
+// Use this to merge a color, such as merging a white ambient light with the color of an object to get the ambient color
+func MultiplyColors(c1, c2 colorful.Color) colorful.Color {
+	return colorful.Color{
+		c1.R * c2.R,
+		c1.G * c2.G,
+		c1.B * c2.B,
 	}.Clamped()
 }
 

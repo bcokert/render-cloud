@@ -22,8 +22,27 @@ func TestCombineColors(t *testing.T) {
 
 	for i, testCase := range testCases {
 	    combined := phong.CombineColors(testCase.C1, testCase.C2)
-		if combined.R != testCase.Expected.R || combined.G != testCase.Expected.G || combined.B != testCase.Expected.B {
-			t.Errorf("TestCombineColors failed for test case %d. Expected %s, received %s", i, testCase.Expected, combined)
+		if !mgl64.FloatEqual(combined.R, testCase.Expected.R) || !mgl64.FloatEqual(combined.G, testCase.Expected.G) || !mgl64.FloatEqual(combined.B, testCase.Expected.B) {
+			t.Errorf("TestCombineColors failed for test case %d. Expected %v, received %v", i, testCase.Expected, combined)
+		}
+	}
+}
+
+func TestMultiplyColors(t *testing.T) {
+	testCases := []struct{
+		C1, C2, Expected colorful.Color
+	}{
+		{colorful.Color{0,0,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}},
+		{colorful.Color{0,1,0}, colorful.Color{0,0,0}, colorful.Color{0,0,0}},
+		{colorful.Color{1,0,1}, colorful.Color{0,1,0}, colorful.Color{0,0,0}},
+		{colorful.Color{0.5,0,1}, colorful.Color{0.2,0.2,1}, colorful.Color{0.1,0,1}},
+		{colorful.Color{1,1,1}, colorful.Color{1,1,1}, colorful.Color{1,1,1}},
+	}
+
+	for i, testCase := range testCases {
+		combined := phong.MultiplyColors(testCase.C1, testCase.C2)
+		if !mgl64.FloatEqual(combined.R, testCase.Expected.R) || !mgl64.FloatEqual(combined.G, testCase.Expected.G) || !mgl64.FloatEqual(combined.B, testCase.Expected.B) {
+			t.Errorf("TestMultiplyColors failed for test case %d. Expected %v, received %v", i, testCase.Expected, combined)
 		}
 	}
 }
@@ -64,7 +83,7 @@ func TestSpecular(t *testing.T) {
 			t.Errorf("TestSpecular for case %d failed. Returned error: %s", i, err.Error())
 		}
 		if !mgl64.FloatEqual(specular, testCase.Expected) {
-			t.Errorf("TestSpecular for case %d failed. Expected %s, received %s", i, testCase.Expected, specular)
+			t.Errorf("TestSpecular for case %d failed. Expected %#v, received %#v", i, testCase.Expected, specular)
 		}
 	}
 }
