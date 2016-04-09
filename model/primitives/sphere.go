@@ -5,6 +5,8 @@ import (
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/tonestuff/quadratic"
 	"math"
+	"errors"
+	"fmt"
 )
 
 type Sphere struct {
@@ -13,15 +15,28 @@ type Sphere struct {
 	Material  *materials.Material `json:"material,omitempty"`
 }
 
-func (sphere *Sphere) GetOrigin() mgl64.Vec3 {
+func (sphere Sphere) GetOrigin() mgl64.Vec3 {
 	return *sphere.Origin
 }
 
-func (sphere *Sphere) GetRadius() float64 {
+func (sphere Sphere) GetRadius() float64 {
 	return *sphere.Radius
 }
 
-func (sphere Sphere) FindClosestRayCollision(origin mgl64.Vec3, direction mgl64.Vec3) *mgl64.Vec3 {
+func (sphere Sphere) GetMaterial() materials.Material {
+	return *sphere.Material
+}
+
+func (sphere Sphere) GetNormalAtPoint(point mgl64.Vec3) (mgl64.Vec3, error) {
+	normal := point.Sub(sphere.GetOrigin())
+	if mgl64.FloatEqual(normal.Len(), sphere.GetRadius()) {
+		return normal.Normalize(), nil
+	} else {
+		return mgl64.Vec3{}, errors.New(fmt.Sprintf("Cannot get normal at %v. Point must be on surface of sphere.", point))
+	}
+}
+
+func (sphere Sphere) FindClosestRayCollision(origin mgl64.Vec3, direction mgl64.Vec3) *float64 {
 	originMinusSphere := origin.Sub(sphere.GetOrigin())
 	direction = direction.Normalize()
 
@@ -35,6 +50,6 @@ func (sphere Sphere) FindClosestRayCollision(origin mgl64.Vec3, direction mgl64.
 		return nil
 	}
 
-	result := origin.Add(direction.Mul(math.Min(real(ans1), real(ans2))))
-	return &result
+	distance := math.Min(real(ans1), real(ans2))
+	return &distance
 }

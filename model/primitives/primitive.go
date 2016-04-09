@@ -6,7 +6,8 @@ import (
 )
 
 type Primitive interface {
-	FindClosestRayCollision(mgl64.Vec3, mgl64.Vec3) mgl64.Vec3
+	FindClosestRayCollision(mgl64.Vec3, mgl64.Vec3) *float64
+	GetNormalAtPoint(mgl64.Vec3) (mgl64.Vec3, error)
 	GetMaterial() materials.Material
 	GetOrigin() mgl64.Vec3
 }
