@@ -44,11 +44,36 @@ func TestGetNormalAtPoint(t *testing.T) {
 	for i, testCase := range testCases {
 		normal, err := testCase.Sphere.GetNormalAtPoint(testCase.Point)
 		if err != nil {
-			t.Errorf("GetNormalAtPoint failed for test case %d. Threw unexpected error %s", i, err.Error())
+			t.Errorf("TestGetNormalAtPoint failed for test case %d. Threw unexpected error %s", i, err.Error())
 		}
 
 		if !normal.ApproxEqual(testCase.Expected) {
-			t.Errorf("GetNormalAtPoint failed for test case %d. Expected %v, received %v", i, testCase.Expected, normal)
+			t.Errorf("TestGetNormalAtPoint failed for test case %d. Expected %v, received %v", i, testCase.Expected, normal)
+		}
+	}
+}
+
+func TestGetNormalAtPointError(t *testing.T) {
+	testCases := []struct{
+		Sphere primitives.Sphere
+		Point mgl64.Vec3
+		Expected string
+	}{
+		{primitives.Sphere{Origin: &mgl64.Vec3{0,0,0}, Radius: utils.FloatPointer(1), Material: nil}, mgl64.Vec3{0,0,0}, "Cannot get normal at [0 0 0]. Point must be on surface of sphere."},
+		{primitives.Sphere{Origin: &mgl64.Vec3{0,0,0}, Radius: utils.FloatPointer(2), Material: nil}, mgl64.Vec3{0,2.1,0}, "Cannot get normal at [0 2.1 0]. Point must be on surface of sphere."},
+
+		{primitives.Sphere{Origin: &mgl64.Vec3{4,2,-5}, Radius: utils.FloatPointer(2.11), Material: nil}, mgl64.Vec3{4,2,-5}.Add(mgl64.Vec3{5,2,1}), "Cannot get normal at [9 4 -4]. Point must be on surface of sphere."},
+		{primitives.Sphere{Origin: &mgl64.Vec3{-3,1.22,5}, Radius: utils.FloatPointer(4.05), Material: nil}, mgl64.Vec3{-3,1.23,5}.Add(mgl64.Vec3{2,1,1}), "Cannot get normal at [-1 2.23 6]. Point must be on surface of sphere."},
+	}
+
+	for i, testCase := range testCases {
+		_, err := testCase.Sphere.GetNormalAtPoint(testCase.Point)
+		if err == nil {
+			t.Errorf("TestGetNormalAtPointError failed for test case %d. Expected an error but received none", i)
+		}
+
+		if err.Error() != testCase.Expected {
+			t.Errorf("TestGetNormalAtPointError failed for test case %d. Expected error %s, received %s", i, testCase.Expected, err.Error())
 		}
 	}
 }
