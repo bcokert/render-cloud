@@ -44,11 +44,11 @@ func TestGetNormalAtPoint(t *testing.T) {
 	for i, testCase := range testCases {
 		normal, err := testCase.Sphere.GetNormalAtPoint(testCase.Point)
 		if err != nil {
-			t.Errorf("TestGetNormalAtPoint failed for test case %d. Threw unexpected error %s", i, err.Error())
+			t.Errorf("Case %d failed. Threw unexpected error %s", i, err.Error())
 		}
 
 		if !normal.ApproxEqual(testCase.Expected) {
-			t.Errorf("TestGetNormalAtPoint failed for test case %d. Expected %v, received %v", i, testCase.Expected, normal)
+			t.Errorf("Case %d failed. Expected %v, received %v", i, testCase.Expected, normal)
 		}
 	}
 }
@@ -69,11 +69,11 @@ func TestGetNormalAtPointError(t *testing.T) {
 	for i, testCase := range testCases {
 		_, err := testCase.Sphere.GetNormalAtPoint(testCase.Point)
 		if err == nil {
-			t.Errorf("TestGetNormalAtPointError failed for test case %d. Expected an error but received none", i)
+			t.Errorf("Case %d failed. Expected an error but received none", i)
 		}
 
 		if err.Error() != testCase.Expected {
-			t.Errorf("TestGetNormalAtPointError failed for test case %d. Expected error %s, received %s", i, testCase.Expected, err.Error())
+			t.Errorf("Case %d failed. Expected error %s, received %s", i, testCase.Expected, err.Error())
 		}
 	}
 }
