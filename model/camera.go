@@ -12,3 +12,27 @@ type Camera struct {
 	ScreenHeight   *float64    `json:"screenHeight,omitempty"`
 	ScreenDistance *float64    `json:"screenDistance,omitempty"`
 }
+
+func (camera Camera) GetOrigin() mgl64.Vec3 {
+	return *camera.Origin
+}
+
+func (camera Camera) GetDirection() mgl64.Vec3 {
+	return *camera.Direction
+}
+
+func (camera Camera) GetUp() mgl64.Vec3 {
+	return *camera.Up
+}
+
+func (camera Camera) GetScreenWidth() float64 {
+	return *camera.ScreenWidth
+}
+
+func (camera Camera) GetScreenHeight() float64 {
+	return *camera.ScreenHeight
+}
+
+func (camera Camera) GetScreenDistance() float64 {
+	return *camera.ScreenDistance
+}
