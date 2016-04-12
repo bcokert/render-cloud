@@ -7,6 +7,9 @@ import (
 	"github.com/bcokert/render-cloud/model"
 	"github.com/bcokert/render-cloud/utils"
 	"net/http"
+	"github.com/bcokert/render-cloud/raytracer"
+	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
+	"github.com/bcokert/render-cloud/image"
 )
 
 func badRequest(responseWriter http.ResponseWriter, output response.ErrorResponse) {
@@ -35,6 +38,20 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 	err := model.FromJson(request.Body, &scene)
 	if err != nil {
 		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode post data. Expected a Scene object: " + err.Error())})
+		return
+	}
+
+	illuminator := phong.PhongIlluminator{}
+	colors, err := raytracer.TraceScene(scene, illuminator, 300, 300)
+	if  err != nil {
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene: " + err.Error())})
+		return
+	}
+
+	pngWriter := image.PNGImageWriter{}
+	err = pngWriter.WriteImage(image.DefaultPNGEncoder, colors, 300, 300, "testout.png")
+	if err != nil {
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to write file with raytracer output: " + err.Error())})
 		return
 	}
 
