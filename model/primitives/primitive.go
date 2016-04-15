@@ -10,4 +10,5 @@ type Primitive interface {
 	GetNormalAtPoint(mgl64.Vec3) (mgl64.Vec3, error)
 	GetMaterial() materials.Material
 	GetOrigin() mgl64.Vec3
+	String() string
 }

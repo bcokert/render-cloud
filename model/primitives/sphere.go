@@ -15,6 +15,10 @@ type Sphere struct {
 	Material  *materials.Material `json:"material,omitempty"`
 }
 
+func (sphere Sphere) String() string {
+	return fmt.Sprintf("Sphere{%v,%v,%#v}", sphere.GetOrigin(), sphere.GetRadius(), sphere.GetMaterial());
+}
+
 func (sphere Sphere) GetOrigin() mgl64.Vec3 {
 	return *sphere.Origin
 }
