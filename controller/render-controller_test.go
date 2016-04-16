@@ -11,6 +11,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/bcokert/render-cloud/model/materials"
+	"os"
 )
 
 func TestPostRenderSucceed(t *testing.T) {
@@ -44,11 +45,21 @@ func TestPostRenderSucceed(t *testing.T) {
 					Shininess: utils.FloatPointer(10),
 				},
 			},
-		}}
+		},
+	}
 	sceneJson, err := model.ToJson(model.DefaultMarshaler, scene)
 	if err != nil {
 		t.Errorf("Failed to convert scene to json, to verify response from server: %s", err.Error())
 	}
 
 	testutils.ExpectRouterRoutes(t, r, http.MethodPost, "/render", scene, http.StatusOK, sceneJson+"\n", nil, nil)
+
+	if _, err := os.Stat("./testout.png"); os.IsNotExist(err) {
+		t.Errorf("Failed to create test png output after rendering")
+	} else {
+		err := os.Remove("./testout.png")
+		if err != nil {
+			t.Errorf("Failed to remove temporary file 'testout.png' created during test")
+		}
+	}
 }

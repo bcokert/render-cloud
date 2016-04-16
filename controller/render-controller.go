@@ -42,7 +42,7 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 
 	illuminator := phong.PhongIlluminator{}
-	colors, err := raytracer.TraceScene(scene, illuminator, 300, 300)
+	colors, err := raytracer.DefaultRaytracer{}.TraceScene(scene, illuminator, 300, 300)
 	if  err != nil {
 		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene: " + err.Error())})
 		return
