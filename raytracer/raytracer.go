@@ -10,39 +10,53 @@ import (
 	"fmt"
 )
 
-func GetClosestCollisionAndPrimitive(origin, ray mgl64.Vec3, objects []primitives.Primitive) (collisionPoint mgl64.Vec3, primitive *primitives.Primitive) {
+type Raytracer interface {
+	TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, height uint) ([]colorful.Color, error)
+	GetClosestCollisionAndPrimitive(origin, ray mgl64.Vec3, objects []primitives.Primitive) (collisionPoint mgl64.Vec3, primitive *primitives.Primitive)
+	GetScreenVectors(camera model.Camera) (up, right, topLeft mgl64.Vec3)
+	GetRayForPixel(x, y, width, height float64, camera model.Camera, screenUp, screenRight, screenTopLeft mgl64.Vec3) (ray mgl64.Vec3)
+}
+
+type DefaultRaytracer struct {}
+
+func (this DefaultRaytracer) GetClosestCollisionAndPrimitive(origin, ray mgl64.Vec3, objects []primitives.Primitive) (collisionPoint mgl64.Vec3, primitive *primitives.Primitive) {
 	var distance float64
 	for _, prim := range objects {
 		collision := prim.FindClosestRayCollision(origin, ray)
 		if collision != nil {
 			if primitive == nil || *collision < distance {
 				distance = *collision
+				foundPrimitive := prim // copy prim, since it's reassigned in each iteration
+				primitive = &foundPrimitive
 			}
-			primitive = &prim
 		}
 	}
 	return origin.Add(ray.Mul(distance)), primitive
 }
 
-func GetScreenVectors(camera model.Camera) (up, right, topLeft mgl64.Vec3) {
+func (this DefaultRaytracer) GetScreenVectors(camera model.Camera) (up, right, topLeft mgl64.Vec3) {
 	forward := camera.GetDirection().Normalize()
 	up = camera.GetUp().Normalize()
-	right = up.Cross(forward).Mul(-1).Normalize()
+	right = up.Cross(forward).Normalize()
 	center := (*camera.Origin).Add(forward.Mul(camera.GetScreenDistance()))
 	topLeft = center.Add(up.Mul(camera.GetScreenHeight() / 2.0)).Sub(right.Mul(camera.GetScreenWidth() / 2.0))
 	return up, right, topLeft
 }
 
-func GetRayForPixel(x, y, width, height float64, camera model.Camera, screenUp, screenRight, screenTopLeft mgl64.Vec3) (ray mgl64.Vec3) {
-	dx := (x * (camera.GetScreenWidth())) / width
-	dy := (y * (camera.GetScreenHeight())) / height
+func (this DefaultRaytracer) GetRayForPixel(x, y, width, height float64, camera model.Camera, screenUp, screenRight, screenTopLeft mgl64.Vec3) (ray mgl64.Vec3) {
+	widthOfPixel := camera.GetScreenWidth() / width
+	halfWidthOfPixel := widthOfPixel/2
+	heightOfPixel := camera.GetScreenHeight() / height
+	halfHeightOfPixel := heightOfPixel/2
+	dx := x * widthOfPixel + halfWidthOfPixel
+	dy := y * heightOfPixel + halfHeightOfPixel
 	screenPoint := screenTopLeft.Add(screenRight.Mul(dx)).Sub(screenUp.Mul(dy))
 	ray = screenPoint.Sub(*camera.Origin).Normalize()
 	return ray
 }
 
-func TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, height uint) ([]colorful.Color, error) {
-	screenUp, screenRight, screenTopLeft := GetScreenVectors(scene.GetWorld().GetCamera())
+func (this DefaultRaytracer) TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, height uint) ([]colorful.Color, error) {
+	screenUp, screenRight, screenTopLeft := this.GetScreenVectors(scene.GetWorld().GetCamera())
 
 	var x, y, ww, hh float64 = 0, 0, float64(width), float64(height)
 	var colors []colorful.Color
@@ -56,13 +70,13 @@ func TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, 
 			}
 
 			// Create a ray through the screen at x,y and check for collisions
-			ray := GetRayForPixel(x, y, ww, hh, scene.GetWorld().GetCamera(), screenUp, screenRight, screenTopLeft)
+			ray := this.GetRayForPixel(x, y, ww, hh, scene.GetWorld().GetCamera(), screenUp, screenRight, screenTopLeft)
 			primitiveObjects := make([]primitives.Primitive, len(scene.GetSpheres()), len(scene.GetSpheres()))
 			for i, sphere := range scene.GetSpheres() {
-				// go does not implicitely convert slices into an interface type, so we must do it manually
+				// go does not implicitly convert slices into an interface type, so we must do it manually
 				primitiveObjects[i] = sphere
 			}
-			collisionPoint, primitive := GetClosestCollisionAndPrimitive(scene.GetWorld().GetCamera().GetOrigin(), ray, primitiveObjects)
+			collisionPoint, primitive := this.GetClosestCollisionAndPrimitive(scene.GetWorld().GetCamera().GetOrigin(), ray, primitiveObjects)
 
 			// If collisions, do local + global illumination. Else, return background color
 			if primitive == nil {
@@ -70,11 +84,11 @@ func TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, 
 			} else {
 				normal, err := (*primitive).GetNormalAtPoint(collisionPoint)
 				if err != nil {
-					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%d, y:%d, while finding surface normal. Error: %s", x, y, err.Error()))
+					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%v, y:%v, while finding surface normal. Error: %s", x, y, err.Error()))
 				}
 				resultColor, err := illuminator.IlluminateLocal(ray, normal, (*primitive).GetMaterial(), scene.GetWorld())
 				if err != nil {
-					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%d, y:%d, while finding local illumination. Error: %s", x, y, err.Error()))
+					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%v, y:%v, while finding local illumination. Error: %s", x, y, err.Error()))
 				}
 				colors = append(colors, resultColor)
 			}
