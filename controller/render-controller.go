@@ -34,15 +34,14 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var scene model.Scene
-	err := model.FromJson(request.Body, &scene)
+	scene, err := model.UnmarshalScene(request.Body)
 	if err != nil {
-		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode post data. Expected a Scene object: " + err.Error())})
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode scene from request: " + err.Error())})
 		return
 	}
 
 	illuminator := phong.PhongIlluminator{}
-	colors, err := raytracer.DefaultRaytracer{}.TraceScene(scene, illuminator, 300, 300)
+	colors, err := raytracer.DefaultRaytracer{}.TraceScene(*scene, illuminator, 300, 300)
 	if  err != nil {
 		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene: " + err.Error())})
 		return
@@ -55,5 +54,5 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	okRequest(responseWriter, scene)
+	okRequest(responseWriter, *scene)
 }

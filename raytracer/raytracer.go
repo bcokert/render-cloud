@@ -56,7 +56,7 @@ func (this DefaultRaytracer) GetRayForPixel(x, y, width, height float64, camera 
 }
 
 func (this DefaultRaytracer) TraceScene(scene model.Scene, illuminator illumination.Illuminator, width, height uint) ([]colorful.Color, error) {
-	screenUp, screenRight, screenTopLeft := this.GetScreenVectors(scene.GetWorld().GetCamera())
+	screenUp, screenRight, screenTopLeft := this.GetScreenVectors(scene.World.GetCamera())
 
 	var x, y, ww, hh float64 = 0, 0, float64(width), float64(height)
 	var colors []colorful.Color
@@ -64,29 +64,29 @@ func (this DefaultRaytracer) TraceScene(scene model.Scene, illuminator illuminat
 		for x = 0; x < ww; x+=1 {
 
 			// Optimization: no lights means collisions don't matter
-			if len(scene.GetWorld().GetLights()) == 0 {
-				colors = append(colors, scene.GetWorld().GetBackground())
+			if len(scene.World.GetLights()) == 0 {
+				colors = append(colors, scene.World.GetBackground())
 				continue
 			}
 
 			// Create a ray through the screen at x,y and check for collisions
-			ray := this.GetRayForPixel(x, y, ww, hh, scene.GetWorld().GetCamera(), screenUp, screenRight, screenTopLeft)
-			primitiveObjects := make([]primitives.Primitive, len(scene.GetSpheres()), len(scene.GetSpheres()))
-			for i, sphere := range scene.GetSpheres() {
+			ray := this.GetRayForPixel(x, y, ww, hh, scene.World.GetCamera(), screenUp, screenRight, screenTopLeft)
+			primitiveObjects := make([]primitives.Primitive, len(scene.Spheres), len(scene.Spheres))
+			for i, sphere := range scene.Spheres {
 				// go does not implicitly convert slices into an interface type, so we must do it manually
 				primitiveObjects[i] = sphere
 			}
-			collisionPoint, primitive := this.GetClosestCollisionAndPrimitive(scene.GetWorld().GetCamera().GetOrigin(), ray, primitiveObjects)
+			collisionPoint, primitive := this.GetClosestCollisionAndPrimitive(scene.World.GetCamera().GetOrigin(), ray, primitiveObjects)
 
 			// If collisions, do local + global illumination. Else, return background color
 			if primitive == nil {
-				colors = append(colors, scene.GetWorld().GetBackground())
+				colors = append(colors, scene.World.GetBackground())
 			} else {
 				normal, err := (*primitive).GetNormalAtPoint(collisionPoint)
 				if err != nil {
 					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%v, y:%v, while finding surface normal. Error: %s", x, y, err.Error()))
 				}
-				resultColor, err := illuminator.IlluminateLocal(ray, normal, (*primitive).GetMaterial(), scene.GetWorld())
+				resultColor, err := illuminator.IlluminateLocal(ray, normal, (*primitive).GetMaterial(), scene.World)
 				if err != nil {
 					return []colorful.Color{}, errors.New(fmt.Sprintf("An error occurred tracing pixel x:%v, y:%v, while finding local illumination. Error: %s", x, y, err.Error()))
 				}

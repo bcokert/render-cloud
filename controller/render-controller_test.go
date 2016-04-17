@@ -17,8 +17,8 @@ import (
 func TestPostRenderSucceed(t *testing.T) {
 	r := router.CreateDefaultRouter()
 	scene := model.Scene{
-		utils.UintPointer(2345),
-		&model.World{
+		2345,
+		model.World{
 			Ambient: &colorful.Color{0.2,0.2,0.2},
 			Background: &colorful.Color{0,0,0},
 			Camera: &model.Camera{
@@ -36,7 +36,7 @@ func TestPostRenderSucceed(t *testing.T) {
 				},
 			},
 		},
-		&[]primitives.Sphere{
+		[]primitives.Sphere{
 			primitives.Sphere{
 				Origin: &mgl64.Vec3{0,0,0},
 				Radius: utils.FloatPointer(4),

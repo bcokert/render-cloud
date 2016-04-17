@@ -296,8 +296,8 @@ func TestTraceScene(t *testing.T) {
     }{
         "No Lights": {
 	        Scene: model.Scene{
-		        utils.UintPointer(2345),
-		        &model.World{
+		        2345,
+		        model.World{
 			        Ambient: &colorful.Color{0.2,0.2,0.2},
 			        Background: &colorful.Color{0.1,0.1,0.1},
 			        Camera: &model.Camera{
@@ -311,7 +311,7 @@ func TestTraceScene(t *testing.T) {
 			        Lights: &[]model.Light{
 			        },
 		        },
-		        &[]primitives.Sphere{
+		        []primitives.Sphere{
 			        primitives.Sphere{
 				        Origin: &mgl64.Vec3{0,0,0},
 				        Radius: utils.FloatPointer(4),
@@ -346,8 +346,8 @@ func TestTraceScene(t *testing.T) {
         },
 	    "Collisions always red": {
 		    Scene: model.Scene{
-			    utils.UintPointer(2345),
-			    &model.World{
+			    2345,
+			    model.World{
 				    Ambient: &colorful.Color{0.2,0.2,0.2},
 				    Background: &colorful.Color{0.1,0.1,0.1},
 				    Camera: &model.Camera{
@@ -365,7 +365,7 @@ func TestTraceScene(t *testing.T) {
 					    },
 				    },
 			    },
-			    &[]primitives.Sphere{
+			    []primitives.Sphere{
 				    primitives.Sphere{
 					    Origin: &mgl64.Vec3{0,0,0},
 					    Radius: utils.FloatPointer(4),
@@ -400,8 +400,8 @@ func TestTraceScene(t *testing.T) {
 	    },
 	    "No Collisions": {
 		    Scene: model.Scene{
-			    utils.UintPointer(2345),
-			    &model.World{
+			    2345,
+			    model.World{
 				    Ambient: &colorful.Color{0.2,0.2,0.2},
 				    Background: &colorful.Color{0.1,0.1,0.1},
 				    Camera: &model.Camera{
@@ -419,7 +419,7 @@ func TestTraceScene(t *testing.T) {
 					    },
 				    },
 			    },
-			    &[]primitives.Sphere{
+			    []primitives.Sphere{
 				    primitives.Sphere{
 					    Origin: &mgl64.Vec3{0,100,0},
 					    Radius: utils.FloatPointer(4),
@@ -454,8 +454,8 @@ func TestTraceScene(t *testing.T) {
 	    },
 	    "Default": {
 		    Scene: model.Scene{
-			    utils.UintPointer(2345),
-			    &model.World{
+			    2345,
+			    model.World{
 				    Ambient: &colorful.Color{0.2,0.2,0.2},
 				    Background: &colorful.Color{0.1,0.1,0.1},
 				    Camera: &model.Camera{
@@ -473,7 +473,7 @@ func TestTraceScene(t *testing.T) {
 					    },
 				    },
 			    },
-			    &[]primitives.Sphere{
+			    []primitives.Sphere{
 				    primitives.Sphere{
 					    Origin: &mgl64.Vec3{0,0,0},
 					    Radius: utils.FloatPointer(4),
@@ -516,8 +516,8 @@ func TestTraceScene(t *testing.T) {
     }{
         "Illuminating Fails": {
 	        Scene: model.Scene{
-		        utils.UintPointer(2345),
-		        &model.World{
+		        2345,
+		        model.World{
 			        Ambient: &colorful.Color{0.2,0.2,0.2},
 			        Background: &colorful.Color{0.1,0.1,0.1},
 			        Camera: &model.Camera{
@@ -535,7 +535,7 @@ func TestTraceScene(t *testing.T) {
 				        },
 			        },
 		        },
-		        &[]primitives.Sphere{
+		        []primitives.Sphere{
 			        primitives.Sphere{
 				        Origin: &mgl64.Vec3{0,0,0},
 				        Radius: utils.FloatPointer(4),

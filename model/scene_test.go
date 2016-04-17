@@ -13,13 +13,13 @@ import (
 
 func TestSceneJsonEncodes(t *testing.T) {
 	scene := model.Scene{
-		Id: utils.UintPointer(8752),
-		World: &model.World{
+		Id: 8752,
+		World: model.World{
 			Ambient:    &colorful.Color{1, 0, 0},
 			Background: &colorful.Color{1, 1, 1},
 			Camera:     &model.Camera{Origin: &mgl64.Vec3{10, 10, -50}, Direction: &mgl64.Vec3{0, 0, 1}, Up: &mgl64.Vec3{0, 1, 0}},
 		},
-		Spheres: &[]primitives.Sphere{
+		Spheres: []primitives.Sphere{
 			primitives.Sphere{Origin: &mgl64.Vec3{0, 0, 0}, Radius: utils.FloatPointer(5.0), Material: &materials.Material{Color: &colorful.Color{R: 1, G: 0, B: 0}, Shininess: utils.FloatPointer(2)}},
 			primitives.Sphere{Origin: &mgl64.Vec3{600, 100, 0}, Radius: utils.FloatPointer(7.0), Material: &materials.Material{Color: &colorful.Color{R: 0, G: 1, B: 0}, Shininess: utils.FloatPointer(1)}},
 			primitives.Sphere{Origin: &mgl64.Vec3{300, 400, 0}, Radius: utils.FloatPointer(1.5), Material: &materials.Material{Color: &colorful.Color{R: 0, G: 0, B: 1}, Shininess: utils.FloatPointer(6)}},
