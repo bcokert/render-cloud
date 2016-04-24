@@ -44,10 +44,10 @@ func ViewerVector(ray mgl64.Vec3) (mgl64.Vec3, error) {
 }
 
 func LightVector(light model.Light) (mgl64.Vec3, error) {
-	if !utils.IsDirectionVector(*light.Direction) {
+	if !utils.IsDirectionVector(light.Direction) {
 		return mgl64.Vec3{}, errors.New("phong.LightVector requires light.Direction to be a direction vector, received the vector [0, 0, 0]")
 	}
-	return (*light.Direction).Mul(-1).Normalize(), nil
+	return light.Direction.Mul(-1).Normalize(), nil
 }
 
 func ReflectedVector(normalVector, lightVector mgl64.Vec3) (mgl64.Vec3, error) {
@@ -78,18 +78,17 @@ func (this PhongIlluminator) MultiplyColors(c1, c2 colorful.Color) colorful.Colo
 	}.Clamped()
 }
 
-//func (this PhongIlluminator)  IlluminateLocal(ambientColor, specularColor, diffuseColor colorful.Color, lightVector, normalVector, viewerVector, reflectedVector mgl64.Vec3, shininess float64) (colorful.Color, error) {
 func (this PhongIlluminator)  IlluminateLocal(ray, normalVector mgl64.Vec3, material materials.Material, world model.World) (colorful.Color, error) {
 	var err error
 
-	resultColor := this.MultiplyColors(*world.Ambient, *material.Color)
+	resultColor := this.MultiplyColors(world.Ambient, material.Color)
 	if world.Lights == nil {
 		return resultColor, nil
 	}
 
 	var specularComponent, diffuseComponent float64
 	var viewerVector, lightVector, reflectedVector mgl64.Vec3
-	for _, light := range *world.Lights {
+	for _, light := range world.Lights {
 
 		if viewerVector, err = ViewerVector(ray); err != nil {
 			return colorful.Color{}, errors.New("phong.ViewerVector Failed: " + err.Error())
@@ -103,7 +102,7 @@ func (this PhongIlluminator)  IlluminateLocal(ray, normalVector mgl64.Vec3, mate
 			return colorful.Color{}, errors.New("phong.ReflectedVector Failed: " + err.Error())
 		}
 
-		if specularComponent, err = Specular(reflectedVector, viewerVector, *material.Shininess); err != nil {
+		if specularComponent, err = Specular(reflectedVector, viewerVector, material.Shininess); err != nil {
 			return colorful.Color{}, errors.New("phong.Specular Failed: " + err.Error())
 		}
 
@@ -111,8 +110,8 @@ func (this PhongIlluminator)  IlluminateLocal(ray, normalVector mgl64.Vec3, mate
 			return colorful.Color{}, errors.New("phong.Diffuse Failed: " + err.Error())
 		}
 
-		specularContributionColor := utils.ScaleColor(*light.Color, specularComponent)
-		diffuseContributionColor := utils.ScaleColor(*material.Color, diffuseComponent)
+		specularContributionColor := utils.ScaleColor(light.Color, specularComponent)
+		diffuseContributionColor := utils.ScaleColor(material.Color, diffuseComponent)
 		totalContribution := this.CombineColors(diffuseContributionColor, specularContributionColor)
 		resultColor = this.CombineColors(resultColor, totalContribution)
 	}

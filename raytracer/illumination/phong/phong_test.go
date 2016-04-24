@@ -232,12 +232,12 @@ func TestViewerVectorError(t *testing.T) {
 
 func TestLightVector(t *testing.T) {
 	testCases := []struct{
-		Light model.Light
+		Light model.Camera
 		Expected mgl64.Vec3
 	}{
-		{model.Light{Direction: &mgl64.Vec3{0,1,0}}, mgl64.Vec3{0,-1,0}},
-		{model.Light{Direction: &mgl64.Vec3{1,1,1}}, mgl64.Vec3{-1,-1,-1}.Normalize()},
-		{model.Light{Direction: &mgl64.Vec3{9,-1,4}}, mgl64.Vec3{-9,1,-4}.Normalize()},
+		{model.Camera{Direction: &mgl64.Vec3{0,1,0}}, mgl64.Vec3{0,-1,0}},
+		{model.Camera{Direction: &mgl64.Vec3{1,1,1}}, mgl64.Vec3{-1,-1,-1}.Normalize()},
+		{model.Camera{Direction: &mgl64.Vec3{9,-1,4}}, mgl64.Vec3{-9,1,-4}.Normalize()},
 	}
 
 	for i, testCase := range testCases {
@@ -253,10 +253,10 @@ func TestLightVector(t *testing.T) {
 
 func TestLightVectorError(t *testing.T) {
 	testCases := []struct{
-		Light model.Light
+		Light model.Camera
 	    Expected string
 	}{
-	    {model.Light{Direction: &mgl64.Vec3{0,0,0}}, "phong.LightVector requires light.Direction to be a direction vector, received the vector [0, 0, 0]"},
+	    {model.Camera{Direction: &mgl64.Vec3{0,0,0}}, "phong.LightVector requires light.Direction to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
@@ -325,19 +325,19 @@ func TestIlluminateLocal(t *testing.T) {
 		Expected colorful.Color
 	}{
 		// No Lights
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Light{}}, Expected: colorful.Color{0.5,0,0}},
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{0,0.5,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Light{}}, Expected: colorful.Color{0,0.25,0.5}},
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,1,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.3,0.5,0.7}, Lights: &[]model.Light{}}, Expected: colorful.Color{0.3,0.5,0.7}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0.5,0,0}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{0,0.5,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0,0.25,0.5}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,1,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.3,0.5,0.7}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0.3,0.5,0.7}},
 
 		// Specular + Ambient
-		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{0.5,0.5,0.5}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.1,0.1,0.1}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.3,0.3}}}}, phongIlluminator.CombineColors(colorful.Color{0.05,0.05,0.05}, colorful.Color{0.3,0.3,0.3})},
-		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.4,0.5}}}}, phongIlluminator.CombineColors(colorful.Color{0.2,0,0}, colorful.Color{0.3,0.4,0.5})},
+		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{0.5,0.5,0.5}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.1,0.1,0.1}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.3,0.3}}}}, phongIlluminator.CombineColors(colorful.Color{0.05,0.05,0.05}, colorful.Color{0.3,0.3,0.3})},
+		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.4,0.5}}}}, phongIlluminator.CombineColors(colorful.Color{0.2,0,0}, colorful.Color{0.3,0.4,0.5})},
 
 		// Specular + Diffuse + Ambient
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.6283484054145522, 0.6283484054145522, 0.7483484054145522}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.5839611736451112, 0.5839611736451112, 0.7039611736451112}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.6283484054145522, 0.04, 0.16}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.5839611736451112, 0.04, 0.16}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.6283484054145522, 0.6283484054145522, 0.7483484054145522}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.5839611736451112, 0.5839611736451112, 0.7039611736451112}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.6283484054145522, 0.04, 0.16}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.5839611736451112, 0.04, 0.16}},
 	}
 
 	for i, testCase := range testCases {
@@ -361,9 +361,9 @@ func TestIlluminateLocalError(t *testing.T) {
 		World model.World
 		Expected string
 	}{
-		{mgl64.Vec3{0,0,0}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ViewerVector Failed"},
-		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,0}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ReflectedVector Failed"},
-		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Light{model.Light{Direction: &mgl64.Vec3{0,0,0}}}}, "phong.LightVector Failed"},
+		{mgl64.Vec3{0,0,0}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ViewerVector Failed"},
+		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,0}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ReflectedVector Failed"},
+		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,0}}}}, "phong.LightVector Failed"},
 	}
 
 	phongIlluminator := phong.PhongIlluminator{}

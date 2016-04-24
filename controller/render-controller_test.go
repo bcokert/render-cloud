@@ -29,8 +29,8 @@ func TestPostRenderSucceed(t *testing.T) {
 				ScreenHeight: utils.FloatPointer(5),
 				ScreenDistance: utils.FloatPointer(2),
 			},
-			Lights: &[]model.Light{
-				model.Light{
+			Lights: &[]model.Camera{
+				model.Camera{
 					Direction: &mgl64.Vec3{1, -1, 1},
 					Color: &colorful.Color{0.4, 0.4, 0.4},
 				},

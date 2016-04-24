@@ -10,6 +10,7 @@ import (
 	"github.com/bcokert/render-cloud/raytracer"
 	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
 	"github.com/bcokert/render-cloud/image"
+	"github.com/bcokert/render-cloud/validation"
 )
 
 func badRequest(responseWriter http.ResponseWriter, output response.ErrorResponse) {
@@ -34,23 +35,29 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	scene, err := model.UnmarshalScene(request.Body)
-	if err != nil {
-		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode scene from request: " + err.Error())})
+	var postRequest model.ScenePostRequest
+	if err := json.NewDecoder(request.Body).Decode(postRequest); err != nil {
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("POST /render received an invalid PostSceneRequest"), Reason: utils.StringPointer(err.Error())})
+	}
+
+	validator := validation.NewValidator()
+	var scene model.Scene
+	if err := scene.FromPostRequest(validator, postRequest); err != nil {
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to decode scene from request"), Reason: utils.StringPointer(err.Error())})
 		return
 	}
 
 	illuminator := phong.PhongIlluminator{}
 	colors, err := raytracer.DefaultRaytracer{}.TraceScene(*scene, illuminator, 300, 300)
 	if  err != nil {
-		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene: " + err.Error())})
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene"), Reason: utils.StringPointer(err.Error())})
 		return
 	}
 
 	pngWriter := image.PNGImageWriter{}
 	err = pngWriter.WriteImage(image.DefaultPNGEncoder, colors, 300, 300, "testout.png")
 	if err != nil {
-		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to write file with raytracer output: " + err.Error())})
+		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to write file with raytracer output"), Reason: utils.StringPointer(err.Error())})
 		return
 	}
 

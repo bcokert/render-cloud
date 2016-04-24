@@ -2,11 +2,11 @@ package testutils
 
 import (
 	"bytes"
-	"github.com/bcokert/render-cloud/model"
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"encoding/json"
 )
 
 func ExpectRouterRoutes(t *testing.T, router *mux.Router, method, url string, body interface{}, expectedStatusCode int, expectedBody string, varsChannel <-chan map[string]string, expectedVars map[string]string) {
@@ -14,7 +14,7 @@ func ExpectRouterRoutes(t *testing.T, router *mux.Router, method, url string, bo
 	var err error
 
 	if body != nil {
-		jsonString, err := model.ToJson(model.DefaultMarshaler, body)
+		jsonString, err := json.Marshal(body)
 		if err != nil {
 			t.Errorf("Failed to encode provided body into json string")
 		}
