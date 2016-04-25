@@ -8,7 +8,7 @@ import (
 	"github.com/bcokert/render-cloud/utils"
 	"net/http"
 	"github.com/bcokert/render-cloud/raytracer"
-	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
+	"github.com/bcokert/render-cloud/raytracer/illumination"
 	"github.com/bcokert/render-cloud/image"
 	"github.com/bcokert/render-cloud/validation"
 )
@@ -36,8 +36,9 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 
 	var postRequest model.ScenePostRequest
-	if err := json.NewDecoder(request.Body).Decode(postRequest); err != nil {
+	if err := json.NewDecoder(request.Body).Decode(&postRequest); err != nil {
 		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("POST /render received an invalid PostSceneRequest"), Reason: utils.StringPointer(err.Error())})
+		return
 	}
 
 	validator := validation.NewValidator()
@@ -47,8 +48,8 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	illuminator := phong.PhongIlluminator{}
-	colors, err := raytracer.DefaultRaytracer{}.TraceScene(*scene, illuminator, 300, 300)
+	illuminator := illumination.PhongIlluminator{}
+	colors, err := raytracer.DefaultRaytracer{}.TraceScene(scene, illuminator, 300, 300)
 	if  err != nil {
 		badRequest(responseWriter, response.ErrorResponse{Message: utils.StringPointer("Failed to raytrace scene"), Reason: utils.StringPointer(err.Error())})
 		return
@@ -61,5 +62,5 @@ func PostRender(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	okRequest(responseWriter, *scene)
+	okRequest(responseWriter, scene)
 }

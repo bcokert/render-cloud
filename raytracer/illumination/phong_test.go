@@ -1,9 +1,9 @@
-package phong_test
+package illumination_test
 
 import (
 	"github.com/go-gl/mathgl/mgl64"
 	"testing"
-	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
+	"github.com/bcokert/render-cloud/raytracer/illumination"
 	"github.com/bcokert/render-cloud/model"
 	"github.com/bcokert/render-cloud/model/materials"
 	"strings"
@@ -23,7 +23,7 @@ func TestCombineColors(t *testing.T) {
 	    {colorful.Color{1,1,1}, colorful.Color{1,1,1}, colorful.Color{1,1,1}},
 	}
 
-	phongIlluminator := phong.PhongIlluminator{}
+	phongIlluminator := illumination.PhongIlluminator{}
 	for i, testCase := range testCases {
 	    combined := phongIlluminator.CombineColors(testCase.C1, testCase.C2)
 		if !mgl64.FloatEqual(combined.R, testCase.Expected.R) || !mgl64.FloatEqual(combined.G, testCase.Expected.G) || !mgl64.FloatEqual(combined.B, testCase.Expected.B) {
@@ -43,7 +43,7 @@ func TestMultiplyColors(t *testing.T) {
 		{colorful.Color{1,1,1}, colorful.Color{1,1,1}, colorful.Color{1,1,1}},
 	}
 
-	phongIlluminator := phong.PhongIlluminator{}
+	phongIlluminator := illumination.PhongIlluminator{}
 	for i, testCase := range testCases {
 		combined := phongIlluminator.MultiplyColors(testCase.C1, testCase.C2)
 		if !mgl64.FloatEqual(combined.R, testCase.Expected.R) || !mgl64.FloatEqual(combined.G, testCase.Expected.G) || !mgl64.FloatEqual(combined.B, testCase.Expected.B) {
@@ -88,7 +88,7 @@ func TestSpecular(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-		specular, err := phong.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
+		specular, err := illumination.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
 		if err != nil {
 			t.Errorf("Case %d failed. Returned error: %s", i, err.Error())
 		}
@@ -105,12 +105,12 @@ func TestSpecularError(t *testing.T) {
 		Shininess float64
 		Expected string
 	}{
-		{mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, 0, "phong.Specular requires reflectedVector to be a direction vector, received the vector [0, 0, 0]"},
-		{mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, 0, "phong.Specular requires viewerVector to be a direction vector, received the vector [0, 0, 0]"},
+		{mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, 0, "illumination.Specular requires reflectedVector to be a direction vector, received the vector [0, 0, 0]"},
+		{mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, 0, "illumination.Specular requires viewerVector to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
-		_, err := phong.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
+		_, err := illumination.Specular(testCase.Reflected, testCase.Viewer, testCase.Shininess)
 		if err == nil || err.Error() != testCase.Expected {
 			t.Errorf("Case %d failed. Expected error %s, received %s", i, testCase.Expected, err)
 		}
@@ -161,7 +161,7 @@ func TestDiffuse(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-		diffuse, err := phong.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
+		diffuse, err := illumination.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
 		if err != nil {
 			t.Errorf("Case %d failed. Returned error: %s", i, err.Error())
 		}
@@ -178,12 +178,12 @@ func TestDiffuseError(t *testing.T) {
 		Normal mgl64.Vec3
 		Expected string
 	}{
-		{0, mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, "phong.Diffuse requires lightVector to be a direction vector, received the vector [0, 0, 0]"},
-		{0, mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, "phong.Diffuse requires normalVector to be a direction vector, received the vector [0, 0, 0]"},
+		{0, mgl64.Vec3{0,0,0}, mgl64.Vec3{1,0,0}, "illumination.Diffuse requires lightVector to be a direction vector, received the vector [0, 0, 0]"},
+		{0, mgl64.Vec3{0,1,1}, mgl64.Vec3{0,0,0}, "illumination.Diffuse requires normalVector to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
-		_, err := phong.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
+		_, err := illumination.Diffuse(testCase.SpecularComponent, testCase.Light, testCase.Normal)
 		if err == nil || err.Error() != testCase.Expected {
 			t.Errorf("Case %d failed. Expected error %s, received %s", i, testCase.Expected, err)
 		}
@@ -201,7 +201,7 @@ func TestViewerVector(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-		result, err := phong.ViewerVector(testCase.Ray)
+		result, err := illumination.ViewerVector(testCase.Ray)
 		if err != nil {
 			t.Errorf("Case %d failed. Unexpected error: %s", i, err.Error())
 		}
@@ -216,11 +216,11 @@ func TestViewerVectorError(t *testing.T) {
 	    Viewer mgl64.Vec3
 	    Expected string
 	}{
-	    {mgl64.Vec3{0,0,0}, "phong.ViewerVector requires ray to be a direction vector, received the vector [0, 0, 0]"},
+	    {mgl64.Vec3{0,0,0}, "illumination.ViewerVector requires ray to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
-	    _, err := phong.ViewerVector(testCase.Viewer)
+	    _, err := illumination.ViewerVector(testCase.Viewer)
 	    if err == nil {
 	        t.Errorf("Case %d failed. Expected error but none occured", i)
 	    }
@@ -232,16 +232,16 @@ func TestViewerVectorError(t *testing.T) {
 
 func TestLightVector(t *testing.T) {
 	testCases := []struct{
-		Light model.Camera
+		Light model.Light
 		Expected mgl64.Vec3
 	}{
-		{model.Camera{Direction: &mgl64.Vec3{0,1,0}}, mgl64.Vec3{0,-1,0}},
-		{model.Camera{Direction: &mgl64.Vec3{1,1,1}}, mgl64.Vec3{-1,-1,-1}.Normalize()},
-		{model.Camera{Direction: &mgl64.Vec3{9,-1,4}}, mgl64.Vec3{-9,1,-4}.Normalize()},
+		{model.Light{Direction: mgl64.Vec3{0,1,0}}, mgl64.Vec3{0,-1,0}},
+		{model.Light{Direction: mgl64.Vec3{1,1,1}}, mgl64.Vec3{-1,-1,-1}.Normalize()},
+		{model.Light{Direction: mgl64.Vec3{9,-1,4}}, mgl64.Vec3{-9,1,-4}.Normalize()},
 	}
 
 	for i, testCase := range testCases {
-		result, err := phong.LightVector(testCase.Light)
+		result, err := illumination.LightVector(testCase.Light)
 		if err != nil {
 			t.Errorf("Case %d failed. Unexpected error: %s", i, err.Error())
 		}
@@ -253,14 +253,14 @@ func TestLightVector(t *testing.T) {
 
 func TestLightVectorError(t *testing.T) {
 	testCases := []struct{
-		Light model.Camera
+		Light model.Light
 	    Expected string
 	}{
-	    {model.Camera{Direction: &mgl64.Vec3{0,0,0}}, "phong.LightVector requires light.Direction to be a direction vector, received the vector [0, 0, 0]"},
+	    {model.Light{Direction: mgl64.Vec3{0,0,0}}, "illumination.LightVector requires light.Direction to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
-	    _, err := phong.LightVector(testCase.Light)
+	    _, err := illumination.LightVector(testCase.Light)
 	    if err == nil {
 	        t.Errorf("Case %d failed. Expected error but none occured", i)
 	    }
@@ -284,7 +284,7 @@ func TestReflectedVector(t *testing.T) {
 	}
 
 	for i, testCase := range testCases {
-	    result, err := phong.ReflectedVector(testCase.Normal, testCase.Light)
+	    result, err := illumination.ReflectedVector(testCase.Normal, testCase.Light)
 	    if err != nil {
 	        t.Errorf("Case %d failed. Unexpected error %s", i, err.Error())
 	    }
@@ -300,12 +300,12 @@ func TestReflectedVectorError(t *testing.T) {
 		Light mgl64.Vec3
 	    Expected string
 	}{
-	    {mgl64.Vec3{0,0,0}, mgl64.Vec3{1,1,1}, "phong.LightVector requires normalVector to be a direction vector, received the vector [0, 0, 0]"},
-	    {mgl64.Vec3{1,1,1}, mgl64.Vec3{0,0,0}, "phong.LightVector requires lightVector to be a direction vector, received the vector [0, 0, 0]"},
+	    {mgl64.Vec3{0,0,0}, mgl64.Vec3{1,1,1}, "illumination.LightVector requires normalVector to be a direction vector, received the vector [0, 0, 0]"},
+	    {mgl64.Vec3{1,1,1}, mgl64.Vec3{0,0,0}, "illumination.LightVector requires lightVector to be a direction vector, received the vector [0, 0, 0]"},
 	}
 
 	for i, testCase := range testCases {
-	    _, err := phong.ReflectedVector(testCase.Normal, testCase.Light)
+	    _, err := illumination.ReflectedVector(testCase.Normal, testCase.Light)
 	    if err == nil {
 	        t.Errorf("Case %d failed. Expected error but none occured", i)
 	    }
@@ -316,7 +316,7 @@ func TestReflectedVectorError(t *testing.T) {
 }
 
 func TestIlluminateLocal(t *testing.T) {
-	phongIlluminator := phong.PhongIlluminator{}
+	phongIlluminator := illumination.PhongIlluminator{}
 	testCases := []struct{
 		Ray mgl64.Vec3
 		Normal mgl64.Vec3
@@ -325,19 +325,19 @@ func TestIlluminateLocal(t *testing.T) {
 		Expected colorful.Color
 	}{
 		// No Lights
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0.5,0,0}},
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{0,0.5,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.5,0.5,0.5}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0,0.25,0.5}},
-		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: &colorful.Color{1,1,1}, Shininess: utils.FloatPointer(1)}, World: model.World{Ambient: &colorful.Color{0.3,0.5,0.7}, Lights: &[]model.Camera{}}, Expected: colorful.Color{0.3,0.5,0.7}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: colorful.Color{1,0,0}, Shininess: 1}, World: model.World{Ambient: colorful.Color{0.5,0.5,0.5}, Lights: []model.Light{}}, Expected: colorful.Color{0.5,0,0}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: colorful.Color{0,0.5,1}, Shininess: 1}, World: model.World{Ambient: colorful.Color{0.5,0.5,0.5}, Lights: []model.Light{}}, Expected: colorful.Color{0,0.25,0.5}},
+		{Ray: mgl64.Vec3{1,1,0}, Normal: mgl64.Vec3{0,1,0}, Material: materials.Material{Color: colorful.Color{1,1,1}, Shininess: 1}, World: model.World{Ambient: colorful.Color{0.3,0.5,0.7}, Lights: []model.Light{}}, Expected: colorful.Color{0.3,0.5,0.7}},
 
 		// Specular + Ambient
-		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{0.5,0.5,0.5}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.1,0.1,0.1}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.3,0.3}}}}, phongIlluminator.CombineColors(colorful.Color{0.05,0.05,0.05}, colorful.Color{0.3,0.3,0.3})},
-		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: &colorful.Color{1,0,0}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.3,0.4,0.5}}}}, phongIlluminator.CombineColors(colorful.Color{0.2,0,0}, colorful.Color{0.3,0.4,0.5})},
+		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: colorful.Color{0.5,0.5,0.5}, Shininess: 1}, model.World{Ambient: colorful.Color{0.1,0.1,0.1}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.3,0.3,0.3}}}}, phongIlluminator.CombineColors(colorful.Color{0.05,0.05,0.05}, colorful.Color{0.3,0.3,0.3})},
+		{mgl64.Vec3{0,0,10}, mgl64.Vec3{0,0,3}, materials.Material{Color: colorful.Color{1,0,0}, Shininess: 5}, model.World{Ambient: colorful.Color{0.2,0.2,0.2}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.3,0.4,0.5}}}}, phongIlluminator.CombineColors(colorful.Color{0.2,0,0}, colorful.Color{0.3,0.4,0.5})},
 
 		// Specular + Diffuse + Ambient
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.6283484054145522, 0.6283484054145522, 0.7483484054145522}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.5839611736451112, 0.5839611736451112, 0.7039611736451112}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(1)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.6283484054145522, 0.04, 0.16}},
-		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0.2,0.2,0.8}, Shininess: utils.FloatPointer(5)}, model.World{Ambient: &colorful.Color{0.2,0.2,0.2}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}, Color: &colorful.Color{0.6,0,0}}}}, colorful.Color{0.5839611736451112, 0.04, 0.16}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0.2,0.2,0.8}, Shininess: 1}, model.World{Ambient: colorful.Color{0.2,0.2,0.2}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.6283484054145522, 0.6283484054145522, 0.7483484054145522}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0.2,0.2,0.8}, Shininess: 5}, model.World{Ambient: colorful.Color{0.2,0.2,0.2}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.6,0.6,0.6}}}}, colorful.Color{0.5839611736451112, 0.5839611736451112, 0.7039611736451112}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0.2,0.2,0.8}, Shininess: 1}, model.World{Ambient: colorful.Color{0.2,0.2,0.2}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.6,0,0}}}}, colorful.Color{0.6283484054145522, 0.04, 0.16}},
+		{mgl64.Vec3{2,0,10}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0.2,0.2,0.8}, Shininess: 5}, model.World{Ambient: colorful.Color{0.2,0.2,0.2}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}, Color: colorful.Color{0.6,0,0}}}}, colorful.Color{0.5839611736451112, 0.04, 0.16}},
 	}
 
 	for i, testCase := range testCases {
@@ -361,12 +361,12 @@ func TestIlluminateLocalError(t *testing.T) {
 		World model.World
 		Expected string
 	}{
-		{mgl64.Vec3{0,0,0}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ViewerVector Failed"},
-		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,0}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,1}}}}, "phong.ReflectedVector Failed"},
-		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,1}, materials.Material{Color: &colorful.Color{0,0,0}}, model.World{Ambient: &colorful.Color{0,0,0}, Lights: &[]model.Camera{model.Camera{Direction: &mgl64.Vec3{0,0,0}}}}, "phong.LightVector Failed"},
+		{mgl64.Vec3{0,0,0}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0,0,0}}, model.World{Ambient: colorful.Color{0,0,0}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}}}}, "illumination.ViewerVector Failed"},
+		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,0}, materials.Material{Color: colorful.Color{0,0,0}}, model.World{Ambient: colorful.Color{0,0,0}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,1}}}}, "illumination.ReflectedVector Failed"},
+		{mgl64.Vec3{0,0,1}, mgl64.Vec3{0,0,1}, materials.Material{Color: colorful.Color{0,0,0}}, model.World{Ambient: colorful.Color{0,0,0}, Lights: []model.Light{model.Light{Direction: mgl64.Vec3{0,0,0}}}}, "illumination.LightVector Failed"},
 	}
 
-	phongIlluminator := phong.PhongIlluminator{}
+	phongIlluminator := illumination.PhongIlluminator{}
 	for i, testCase := range testCases {
 		_, err := phongIlluminator.IlluminateLocal(testCase.Ray, testCase.Normal, testCase.Material, testCase.World)
 		if err == nil {

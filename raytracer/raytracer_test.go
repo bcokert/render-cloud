@@ -10,7 +10,6 @@ import (
 	"github.com/bcokert/render-cloud/model"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/bcokert/render-cloud/raytracer/illumination"
-	"github.com/bcokert/render-cloud/raytracer/illumination/phong"
 	"errors"
 )
 
@@ -28,9 +27,9 @@ func TestGetClosestCollisionAndPrimitive(t *testing.T) {
 	        Ray: mgl64.Vec3{0,0,1},
 	        Objects: []primitives.Primitive{
 		        primitives.Sphere{
-			        Origin: &mgl64.Vec3{0,0,10},
-			        Radius: utils.FloatPointer(1),
-			        Material: &materials.Material{},
+			        Origin: mgl64.Vec3{0,0,10},
+			        Radius: 1,
+			        Material: materials.Material{},
 		        },
 	        },
 	        ExpectedPoint: mgl64.Vec3{0,0,9},
@@ -41,19 +40,19 @@ func TestGetClosestCollisionAndPrimitive(t *testing.T) {
 		    Ray: mgl64.Vec3{0,0,1},
 		    Objects: []primitives.Primitive{
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{0,0,10},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{0,0,10},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{0,0,6},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{0,0,6},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{0,0,15},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{0,0,15},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 		    },
 		    ExpectedPoint: mgl64.Vec3{0,0,5},
@@ -64,19 +63,19 @@ func TestGetClosestCollisionAndPrimitive(t *testing.T) {
 		    Ray: mgl64.Vec3{0,0,1},
 		    Objects: []primitives.Primitive{
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{3,2,10},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{3,2,10},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{-6,-1,6},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{-6,-1,6},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{0,4,15},
-				    Radius: utils.FloatPointer(2),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{0,4,15},
+				    Radius: 2,
+				    Material: materials.Material{},
 			    },
 		    },
 		    ExpectedPoint: mgl64.Vec3{},
@@ -87,19 +86,19 @@ func TestGetClosestCollisionAndPrimitive(t *testing.T) {
 		    Ray: mgl64.Vec3{0,0,1},
 		    Objects: []primitives.Primitive{
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{3,2,10},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{3,2,10},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{-6,-1,6},
-				    Radius: utils.FloatPointer(1),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{-6,-1,6},
+				    Radius: 1,
+				    Material: materials.Material{},
 			    },
 			    primitives.Sphere{
-				    Origin: &mgl64.Vec3{0,0,15},
-				    Radius: utils.FloatPointer(2),
-				    Material: &materials.Material{},
+				    Origin: mgl64.Vec3{0,0,15},
+				    Radius: 2,
+				    Material: materials.Material{},
 			    },
 		    },
 		    ExpectedPoint: mgl64.Vec3{0,0,13},
@@ -120,12 +119,12 @@ func TestGetClosestCollisionAndPrimitive(t *testing.T) {
             t.Errorf("'%s' failed. Expected collision %v, received %v", name, testCase.ExpectedPoint, collision)
         }
         if testCase.ExpectedPrimitiveIndex == nil && primitive != nil {
-            t.Errorf("'%s' failed. Expected primtive to be nil, received %d", name, (*primitive).String())
+            t.Errorf("'%s' failed. Expected primtive to be nil, received %#v", name, *primitive)
         }
 	    if testCase.ExpectedPrimitiveIndex != nil && primitive == nil {
-		    t.Errorf("'%s' failed. Expected primtive to be %s, received nil", name, testCase.Objects[*testCase.ExpectedPrimitiveIndex].String())
-	    } else if (testCase.ExpectedPrimitiveIndex != nil && (*primitive).String() != testCase.Objects[*testCase.ExpectedPrimitiveIndex].String()) {
-		    t.Errorf("'%s' failed. Expected primtive to be %s, received %s", name, testCase.Objects[*testCase.ExpectedPrimitiveIndex].String(), (*primitive).String())
+		    t.Errorf("'%s' failed. Expected primtive to be %#v, received nil", name, testCase.Objects[*testCase.ExpectedPrimitiveIndex])
+	    } else if (testCase.ExpectedPrimitiveIndex != nil && *primitive != testCase.Objects[*testCase.ExpectedPrimitiveIndex]) {
+		    t.Errorf("'%s' failed. Expected primtive to be %#v, received %#v", name, testCase.Objects[*testCase.ExpectedPrimitiveIndex], (*primitive))
 	    }
     }
 }
@@ -139,12 +138,12 @@ func TestGetScreenVectors(t *testing.T) {
     }{
         "Basic 1": {
 	        Camera: model.Camera{
-		        Origin:         &mgl64.Vec3{0,0,-10},
-		        Direction:      &mgl64.Vec3{0,0,1},
-		        Up:             &mgl64.Vec3{0,1,0},
-		        ScreenWidth:    utils.FloatPointer(2),
-		        ScreenHeight:   utils.FloatPointer(2),
-		        ScreenDistance: utils.FloatPointer(1),
+		        Origin:         mgl64.Vec3{0,0,-10},
+		        Direction:      mgl64.Vec3{0,0,1},
+		        Up:             mgl64.Vec3{0,1,0},
+		        ScreenWidth:    2,
+		        ScreenHeight:   2,
+		        ScreenDistance: 1,
 	        },
 	        ExpectedUp: mgl64.Vec3{0,1,0},
 	        ExpectedRight: mgl64.Vec3{1,0,0},
@@ -152,12 +151,12 @@ func TestGetScreenVectors(t *testing.T) {
         },
 	    "Scaled": {
 		    Camera: model.Camera{
-			    Origin:         &mgl64.Vec3{0,0,-9},
-			    Direction:      &mgl64.Vec3{0,0,4},
-			    Up:             &mgl64.Vec3{0,2,0},
-			    ScreenWidth:    utils.FloatPointer(2),
-			    ScreenHeight:   utils.FloatPointer(2),
-			    ScreenDistance: utils.FloatPointer(2),
+			    Origin:         mgl64.Vec3{0,0,-9},
+			    Direction:      mgl64.Vec3{0,0,4},
+			    Up:             mgl64.Vec3{0,2,0},
+			    ScreenWidth:    2,
+			    ScreenHeight:   2,
+			    ScreenDistance: 2,
 		    },
 		    ExpectedUp: mgl64.Vec3{0,1,0},
 		    ExpectedRight: mgl64.Vec3{1,0,0},
@@ -165,12 +164,12 @@ func TestGetScreenVectors(t *testing.T) {
 	    },
 	    "Rotated": {
 		    Camera: model.Camera{
-			    Origin:         &mgl64.Vec3{0,0,-10},
-			    Direction:      &mgl64.Vec3{0,0,-1},
-			    Up:             &mgl64.Vec3{0,-1,0},
-			    ScreenWidth:    utils.FloatPointer(2),
-			    ScreenHeight:   utils.FloatPointer(2),
-			    ScreenDistance: utils.FloatPointer(1),
+			    Origin:         mgl64.Vec3{0,0,-10},
+			    Direction:      mgl64.Vec3{0,0,-1},
+			    Up:             mgl64.Vec3{0,-1,0},
+			    ScreenWidth:    2,
+			    ScreenHeight:   2,
+			    ScreenDistance: 1,
 		    },
 		    ExpectedUp: mgl64.Vec3{0,-1,0},
 		    ExpectedRight: mgl64.Vec3{1,0,0},
@@ -205,12 +204,12 @@ func Test(t *testing.T) {
 	        Width: 2,
 	        Height: 2,
 	        Camera: model.Camera{
-		        Origin:         &mgl64.Vec3{0,0,-10},
-		        Direction:      &mgl64.Vec3{0,0,1},
-		        Up:             &mgl64.Vec3{0,1,0},
-		        ScreenWidth:    utils.FloatPointer(2),
-		        ScreenHeight:   utils.FloatPointer(2),
-		        ScreenDistance: utils.FloatPointer(1),
+		        Origin:         mgl64.Vec3{0,0,-10},
+		        Direction:      mgl64.Vec3{0,0,1},
+		        Up:             mgl64.Vec3{0,1,0},
+		        ScreenWidth:    2,
+		        ScreenHeight:   2,
+		        ScreenDistance: 1,
 	        },
 	        ExpectedRays: []mgl64.Vec3{
 		        mgl64.Vec3{-0.5,0.5,1}.Normalize(),
@@ -224,12 +223,12 @@ func Test(t *testing.T) {
 		    Width: 2,
 		    Height: 2,
 		    Camera: model.Camera{
-			    Origin:         &mgl64.Vec3{0,0,-10},
-			    Direction:      &mgl64.Vec3{0,0,1},
-			    Up:             &mgl64.Vec3{0,-1,0},
-			    ScreenWidth:    utils.FloatPointer(2),
-			    ScreenHeight:   utils.FloatPointer(2),
-			    ScreenDistance: utils.FloatPointer(1),
+			    Origin:         mgl64.Vec3{0,0,-10},
+			    Direction:      mgl64.Vec3{0,0,1},
+			    Up:             mgl64.Vec3{0,-1,0},
+			    ScreenWidth:    2,
+			    ScreenHeight:   2,
+			    ScreenDistance: 1,
 		    },
 		    ExpectedRays: []mgl64.Vec3{
 			    mgl64.Vec3{0.5,-0.5,1}.Normalize(),
@@ -243,12 +242,12 @@ func Test(t *testing.T) {
 		    Width: 2,
 		    Height: 2,
 		    Camera: model.Camera{
-			    Origin:         &mgl64.Vec3{0,0,-10},
-			    Direction:      &mgl64.Vec3{0,0,51},
-			    Up:             &mgl64.Vec3{0,4,0},
-			    ScreenWidth:    utils.FloatPointer(4),
-			    ScreenHeight:   utils.FloatPointer(3),
-			    ScreenDistance: utils.FloatPointer(5),
+			    Origin:         mgl64.Vec3{0,0,-10},
+			    Direction:      mgl64.Vec3{0,0,51},
+			    Up:             mgl64.Vec3{0,4,0},
+			    ScreenWidth:    4,
+			    ScreenHeight:   3,
+			    ScreenDistance: 5,
 		    },
 		    ExpectedRays: []mgl64.Vec3{
 			    mgl64.Vec3{-1,0.75,5}.Normalize(),
@@ -272,7 +271,7 @@ func Test(t *testing.T) {
 }
 
 type illuminatorAlwaysRed struct {
-	phong.PhongIlluminator
+	illumination.PhongIlluminator
 }
 
 func (this illuminatorAlwaysRed) IlluminateLocal(ray, normalVector mgl64.Vec3, material materials.Material, world model.World) (colorful.Color, error) {
@@ -280,7 +279,7 @@ func (this illuminatorAlwaysRed) IlluminateLocal(ray, normalVector mgl64.Vec3, m
 }
 
 type illuminatorAlwaysFails struct {
-	phong.PhongIlluminator
+	illumination.PhongIlluminator
 }
 
 func (this illuminatorAlwaysFails) IlluminateLocal(ray, normalVector mgl64.Vec3, material materials.Material, world model.World) (colorful.Color, error) {
@@ -298,31 +297,29 @@ func TestTraceScene(t *testing.T) {
 	        Scene: model.Scene{
 		        2345,
 		        model.World{
-			        Ambient: &colorful.Color{0.2,0.2,0.2},
-			        Background: &colorful.Color{0.1,0.1,0.1},
-			        Camera: &model.Camera{
-				        Origin: &mgl64.Vec3{0,0,-8},
-				        Direction: &mgl64.Vec3{0,0,1},
-				        Up: &mgl64.Vec3{0,1,0},
-				        ScreenWidth: utils.FloatPointer(5),
-				        ScreenHeight: utils.FloatPointer(5),
-				        ScreenDistance: utils.FloatPointer(2),
-			        },
-			        Lights: &[]model.Camera{
+			        Ambient: colorful.Color{0.2,0.2,0.2},
+			        Background: colorful.Color{0.1,0.1,0.1},
+			        Camera: model.Camera{
+				        Origin: mgl64.Vec3{0,0,-8},
+				        Direction: mgl64.Vec3{0,0,1},
+				        Up: mgl64.Vec3{0,1,0},
+				        ScreenWidth: 5,
+				        ScreenHeight: 5,
+				        ScreenDistance: 2,
 			        },
 		        },
 		        []primitives.Sphere{
 			        primitives.Sphere{
-				        Origin: &mgl64.Vec3{0,0,0},
-				        Radius: utils.FloatPointer(4),
-				        Material: &materials.Material{
-					        Color: &colorful.Color{0.7,0.1,0.1},
-					        Shininess: utils.FloatPointer(10),
+				        Origin: mgl64.Vec3{0,0,0},
+				        Radius: 4,
+				        Material: materials.Material{
+					        Color: colorful.Color{0.7,0.1,0.1},
+					        Shininess: 10,
 				        },
 			        },
 		        },
 	        },
-	        Illuminator: phong.PhongIlluminator{},
+	        Illuminator: illumination.PhongIlluminator{},
 	        Width: 4,
 	        Height: 4,
 	        Expected: []colorful.Color{
@@ -348,30 +345,30 @@ func TestTraceScene(t *testing.T) {
 		    Scene: model.Scene{
 			    2345,
 			    model.World{
-				    Ambient: &colorful.Color{0.2,0.2,0.2},
-				    Background: &colorful.Color{0.1,0.1,0.1},
-				    Camera: &model.Camera{
-					    Origin: &mgl64.Vec3{0,0,-8},
-					    Direction: &mgl64.Vec3{0,0,1},
-					    Up: &mgl64.Vec3{0,1,0},
-					    ScreenWidth: utils.FloatPointer(5),
-					    ScreenHeight: utils.FloatPointer(5),
-					    ScreenDistance: utils.FloatPointer(2),
+				    Ambient: colorful.Color{0.2,0.2,0.2},
+				    Background: colorful.Color{0.1,0.1,0.1},
+				    Camera: model.Camera{
+					    Origin: mgl64.Vec3{0,0,-8},
+					    Direction: mgl64.Vec3{0,0,1},
+					    Up: mgl64.Vec3{0,1,0},
+					    ScreenWidth: 5,
+					    ScreenHeight: 5,
+					    ScreenDistance: 2,
 				    },
-				    Lights: &[]model.Camera{
-					    model.Camera{
-						    Direction: &mgl64.Vec3{1, 1, 1},
-						    Color: &colorful.Color{0.4, 0.4, 0.4},
+				    Lights: []model.Light{
+					    model.Light{
+						    Direction: mgl64.Vec3{1, 1, 1},
+						    Color: colorful.Color{0.4, 0.4, 0.4},
 					    },
 				    },
 			    },
 			    []primitives.Sphere{
 				    primitives.Sphere{
-					    Origin: &mgl64.Vec3{0,0,0},
-					    Radius: utils.FloatPointer(4),
-					    Material: &materials.Material{
-						    Color: &colorful.Color{0.7,0.1,0.1},
-						    Shininess: utils.FloatPointer(10),
+					    Origin: mgl64.Vec3{0,0,0},
+					    Radius: 4,
+					    Material: materials.Material{
+						    Color: colorful.Color{0.7,0.1,0.1},
+						    Shininess: 10,
 					    },
 				    },
 			    },
@@ -402,35 +399,35 @@ func TestTraceScene(t *testing.T) {
 		    Scene: model.Scene{
 			    2345,
 			    model.World{
-				    Ambient: &colorful.Color{0.2,0.2,0.2},
-				    Background: &colorful.Color{0.1,0.1,0.1},
-				    Camera: &model.Camera{
-					    Origin: &mgl64.Vec3{0,0,-8},
-					    Direction: &mgl64.Vec3{0,0,1},
-					    Up: &mgl64.Vec3{0,1,0},
-					    ScreenWidth: utils.FloatPointer(5),
-					    ScreenHeight: utils.FloatPointer(5),
-					    ScreenDistance: utils.FloatPointer(2),
+				    Ambient: colorful.Color{0.2,0.2,0.2},
+				    Background: colorful.Color{0.1,0.1,0.1},
+				    Camera: model.Camera{
+					    Origin: mgl64.Vec3{0,0,-8},
+					    Direction: mgl64.Vec3{0,0,1},
+					    Up: mgl64.Vec3{0,1,0},
+					    ScreenWidth: 5,
+					    ScreenHeight: 5,
+					    ScreenDistance: 2,
 				    },
-				    Lights: &[]model.Camera{
-					    model.Camera{
-						    Direction: &mgl64.Vec3{1, -1, 1},
-						    Color: &colorful.Color{0.4, 0.4, 0.4},
+				    Lights: []model.Light{
+					    model.Light{
+						    Direction: mgl64.Vec3{1, -1, 1},
+						    Color: colorful.Color{0.4, 0.4, 0.4},
 					    },
 				    },
 			    },
 			    []primitives.Sphere{
 				    primitives.Sphere{
-					    Origin: &mgl64.Vec3{0,100,0},
-					    Radius: utils.FloatPointer(4),
-					    Material: &materials.Material{
-						    Color: &colorful.Color{0.7,0.1,0.1},
-						    Shininess: utils.FloatPointer(10),
+					    Origin: mgl64.Vec3{0,100,0},
+					    Radius: 4,
+					    Material: materials.Material{
+						    Color: colorful.Color{0.7,0.1,0.1},
+						    Shininess: 10,
 					    },
 				    },
 			    },
 		    },
-		    Illuminator: phong.PhongIlluminator{},
+		    Illuminator: illumination.PhongIlluminator{},
 		    Width: 4,
 		    Height: 4,
 		    Expected: []colorful.Color{
@@ -456,35 +453,35 @@ func TestTraceScene(t *testing.T) {
 		    Scene: model.Scene{
 			    2345,
 			    model.World{
-				    Ambient: &colorful.Color{0.2,0.2,0.2},
-				    Background: &colorful.Color{0.1,0.1,0.1},
-				    Camera: &model.Camera{
-					    Origin: &mgl64.Vec3{0,0,-8},
-					    Direction: &mgl64.Vec3{0,0,1},
-					    Up: &mgl64.Vec3{0,1,0},
-					    ScreenWidth: utils.FloatPointer(5),
-					    ScreenHeight: utils.FloatPointer(5),
-					    ScreenDistance: utils.FloatPointer(2),
+				    Ambient: colorful.Color{0.2,0.2,0.2},
+				    Background: colorful.Color{0.1,0.1,0.1},
+				    Camera: model.Camera{
+					    Origin: mgl64.Vec3{0,0,-8},
+					    Direction: mgl64.Vec3{0,0,1},
+					    Up: mgl64.Vec3{0,1,0},
+					    ScreenWidth: 5,
+					    ScreenHeight: 5,
+					    ScreenDistance: 2,
 				    },
-				    Lights: &[]model.Camera{
-					    model.Camera{
-						    Direction: &mgl64.Vec3{1, -1, 1},
-						    Color: &colorful.Color{0.4, 0.4, 0.4},
+				    Lights: []model.Light{
+					    model.Light{
+						    Direction: mgl64.Vec3{1, -1, 1},
+						    Color: colorful.Color{0.4, 0.4, 0.4},
 					    },
 				    },
 			    },
 			    []primitives.Sphere{
 				    primitives.Sphere{
-					    Origin: &mgl64.Vec3{0,0,0},
-					    Radius: utils.FloatPointer(4),
-					    Material: &materials.Material{
-						    Color: &colorful.Color{0.7,0.1,0.1},
-						    Shininess: utils.FloatPointer(10),
+					    Origin: mgl64.Vec3{0,0,0},
+					    Radius: 4,
+					    Material: materials.Material{
+						    Color: colorful.Color{0.7,0.1,0.1},
+						    Shininess: 10,
 					    },
 				    },
 			    },
 		    },
-		    Illuminator: phong.PhongIlluminator{},
+		    Illuminator: illumination.PhongIlluminator{},
 		    Width: 4,
 		    Height: 4,
 		    Expected: []colorful.Color{
@@ -518,30 +515,30 @@ func TestTraceScene(t *testing.T) {
 	        Scene: model.Scene{
 		        2345,
 		        model.World{
-			        Ambient: &colorful.Color{0.2,0.2,0.2},
-			        Background: &colorful.Color{0.1,0.1,0.1},
-			        Camera: &model.Camera{
-				        Origin: &mgl64.Vec3{0,0,-8},
-				        Direction: &mgl64.Vec3{0,0,1},
-				        Up: &mgl64.Vec3{0,1,0},
-				        ScreenWidth: utils.FloatPointer(5),
-				        ScreenHeight: utils.FloatPointer(5),
-				        ScreenDistance: utils.FloatPointer(2),
+			        Ambient: colorful.Color{0.2,0.2,0.2},
+			        Background: colorful.Color{0.1,0.1,0.1},
+			        Camera: model.Camera{
+				        Origin: mgl64.Vec3{0,0,-8},
+				        Direction: mgl64.Vec3{0,0,1},
+				        Up: mgl64.Vec3{0,1,0},
+				        ScreenWidth: 5,
+				        ScreenHeight: 5,
+				        ScreenDistance: 2,
 			        },
-			        Lights: &[]model.Camera{
-				        model.Camera{
-					        Direction: &mgl64.Vec3{1, -1, 1},
-					        Color: &colorful.Color{0.4, 0.4, 0.4},
+			        Lights: []model.Light{
+				        model.Light{
+					        Direction: mgl64.Vec3{1, -1, 1},
+					        Color: colorful.Color{0.4, 0.4, 0.4},
 				        },
 			        },
 		        },
 		        []primitives.Sphere{
 			        primitives.Sphere{
-				        Origin: &mgl64.Vec3{0,0,0},
-				        Radius: utils.FloatPointer(4),
-				        Material: &materials.Material{
-					        Color: &colorful.Color{0.7,0.1,0.1},
-					        Shininess: utils.FloatPointer(10),
+				        Origin: mgl64.Vec3{0,0,0},
+				        Radius: 4,
+				        Material: materials.Material{
+					        Color: colorful.Color{0.7,0.1,0.1},
+					        Shininess: 10,
 				        },
 			        },
 		        },

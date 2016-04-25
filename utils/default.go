@@ -28,11 +28,3 @@ func DefaultFloat(maybe *float64, def float64) float64 {
 
 	return def
 }
-
-func DefaultInt(maybe *int, def int) int {
-	if maybe != nil {
-		return *maybe
-	}
-
-	return def
-}
